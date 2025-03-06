@@ -41,6 +41,7 @@ func main() {
 	route := chi.NewRouter()
 	route.Use(localMiddleware.LoggerMiddleware)
 	route.Use(middleware.AllowContentEncoding("gzip"))
+	route.Use(localMiddleware.AuthMiddleware(config))
 
 	userRepository := repository.NewUserRepository(DB)
 	userService := service.NewUserService(userRepository, config)

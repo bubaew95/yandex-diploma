@@ -7,12 +7,12 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
-type SignUp struct {
+type UserRegistration struct {
 	Login    string `db:"login"`
 	Password string `db:"password"`
 }
 
-func (u SignUp) CheckLogin(err error) error {
+func (u UserRegistration) CheckLogin(err error) error {
 	var pgErr *pgconn.PgError
 
 	if errors.As(err, &pgErr) && pgerrcode.IsIntegrityConstraintViolation(pgErr.Code) {
