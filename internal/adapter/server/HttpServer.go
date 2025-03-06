@@ -3,7 +3,6 @@ package server
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/bubaew95/yandex-diploma/conf"
 	"github.com/bubaew95/yandex-diploma/internal/adapter/logger"
 	"github.com/go-chi/chi/v5"
@@ -20,15 +19,13 @@ type HttpServer interface {
 }
 
 type httpServer struct {
-	Port   int
 	Server *http.Server
 }
 
 func NewHttpServer(r *chi.Mux, c conf.Config) HttpServer {
 	return &httpServer{
-		Port: c.Port,
 		Server: &http.Server{
-			Addr:    fmt.Sprintf("%s:%d", defaultHost, c.Port),
+			Addr:    c.RunAddress,
 			Handler: r,
 		},
 	}

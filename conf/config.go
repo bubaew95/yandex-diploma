@@ -8,6 +8,7 @@ import (
 type Config struct {
 	RunAddress     string
 	AccrualAddress string
+	SecretKey      string
 	Database       *DatabaseConfig
 }
 
@@ -43,9 +44,15 @@ func NewConfig() *Config {
 		*accrualAddress = envAccrualAddress
 	}
 
+	var secretKey string
+	if envSecretKey := os.Getenv("SECRET_KEY"); envSecretKey != "" {
+		secretKey = envSecretKey
+	}
+
 	return &Config{
 		RunAddress:     *runAddress,
 		AccrualAddress: *accrualAddress,
+		SecretKey:      secretKey,
 		Database: &DatabaseConfig{
 			Driver:                  "pgx",
 			DatabaseURI:             *databaseURI,
