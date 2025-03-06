@@ -1,7 +1,7 @@
 package token
 
 import (
-	"github.com/bubaew95/yandex-diploma/internal/core/entity"
+	"github.com/bubaew95/yandex-diploma/internal/core/entity/userentity"
 	"github.com/golang-jwt/jwt/v4"
 	"time"
 )
@@ -10,7 +10,7 @@ const TOKEN_EXP = time.Hour * 3
 
 type Claims struct {
 	jwt.RegisteredClaims
-	entity.User
+	userentity.User
 }
 
 type JwtToken struct {
@@ -23,7 +23,7 @@ func NewJwtToken(secretKey string) *JwtToken {
 	}
 }
 
-func (j JwtToken) GenerateToken(user entity.User) (string, error) {
+func (j JwtToken) GenerateToken(user userentity.User) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, Claims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(TOKEN_EXP)),
@@ -39,13 +39,14 @@ func (j JwtToken) GenerateToken(user entity.User) (string, error) {
 	return tokenString, nil
 }
 
-func (j JwtToken) EncodeToken(tokenString string) (user entity.User, err error) {
+func (j JwtToken) EncodeToken(tokenString string) (user userentity.User, err error) {
 	claims := &Claims{}
-	_, err = jwt.ParseWithClaims(tokenString, claims, func(t *jwt.Token) (interface{}, error) {
+	
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(t *jwt.Token) (interface{}, error) {
 		return []byte(j.secretKey), nil
 	})
-	if err != nil {
-		return entity.User{}, err
+	if err != nil || !token.Valid {
+		return userentity.User{}, err
 	}
 
 	return claims.User, nil

@@ -3,8 +3,9 @@ package handler
 import (
 	"encoding/json"
 	"github.com/bubaew95/yandex-diploma/internal/adapter/logger"
-	"github.com/bubaew95/yandex-diploma/internal/core/dto/request"
+	"github.com/bubaew95/yandex-diploma/internal/core/dto/request/authdto"
 	"github.com/bubaew95/yandex-diploma/internal/core/dto/response"
+	"github.com/bubaew95/yandex-diploma/internal/core/dto/response/resplogindto"
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 	"net/http"
@@ -33,7 +34,7 @@ func (u UserHandler) InitRoute() {
 }
 
 func (u UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
-	var req request.SignUpRequest
+	var req authdto.SignUpRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		logger.Log.Info("Json encode error", zap.Error(err))
 		WriteJSON(w, http.StatusBadRequest, response.ErrorResponse{
@@ -66,12 +67,49 @@ func (u UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 	})
 
-	WriteJSON(w, http.StatusOK, response.SuccessResponseSignUp{
+	WriteJSON(w, http.StatusOK, response.ResponseMessage{
 		Status:  "success",
 		Message: "User successfully registered and authenticated",
 	})
 }
 
 func (u UserHandler) Login(w http.ResponseWriter, r *http.Request) {
+	var signIn authdto.SignInRequest
+	if err := json.NewDecoder(r.Body).Decode(&signIn); err != nil {
+		logger.Log.Info("Json encode error", zap.Error(err))
+		WriteJSON(w, http.StatusBadRequest, response.ErrorResponse{
+			Status:  "failed",
+			Message: "json encode error",
+		})
+		return
+	}
 
+	if validationErrors := signIn.Validate(); len(validationErrors) > 0 {
+		logger.Log.Info("Validation error", zap.Any("errors", validationErrors))
+		WriteJSON(w, http.StatusBadRequest, response.ErrorResponse{
+			Errors: validationErrors,
+			Status: "failed",
+		})
+		return
+	}
+
+	token, err := u.service.Authorization(r.Context(), signIn)
+	if err != nil {
+		logger.Log.Info("Authorization error", zap.Error(err))
+		HandleErrors(w, err)
+		return
+	}
+
+	tokenExires := time.Now().Add(24 * time.Hour)
+	http.SetCookie(w, &http.Cookie{
+		Name:     "auth_token",
+		Value:    token,
+		Expires:  tokenExires,
+		HttpOnly: true,
+	})
+
+	WriteJSON(w, http.StatusOK, resplogindto.ResponseToken{
+		Token:  token,
+		Expire: tokenExires,
+	})
 }

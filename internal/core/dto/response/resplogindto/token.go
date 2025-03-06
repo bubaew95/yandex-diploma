@@ -1,6 +1,8 @@
 package resplogindto
 
+import "time"
+
 type ResponseToken struct {
-	Status  string `json:"status"`
-	Message string `json:"message"`
+	Token  string    `json:"token"`
+	Expire time.Time `json:"expire"`
 }
