@@ -6,6 +6,7 @@ import (
 	"github.com/bubaew95/yandex-diploma/internal/core/dto/request"
 	"github.com/bubaew95/yandex-diploma/internal/core/model"
 	"github.com/bubaew95/yandex-diploma/internal/core/ports"
+	"github.com/bubaew95/yandex-diploma/internal/core/token"
 	"github.com/bubaew95/yandex-diploma/pkg/crypto"
 )
 
@@ -21,18 +22,30 @@ func NewUserService(repo ports.UserRepository, config *conf.Config) *UserService
 	}
 }
 
-func (s *UserService) Registration(ctx context.Context, req request.SignUpRequest) error {
+func (s *UserService) Registration(ctx context.Context, req request.SignUpRequest) (string, error) {
 	newCrypto := crypto.NewCrypto(s.config.SecretKey)
 
-	password, err := newCrypto.Decode(req.Password)
+	password, err := newCrypto.Encode(req.Password)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	user := model.SignUp{
+	userModel := model.SignUp{
 		Login:    req.Login,
 		Password: password,
 	}
 
-	return s.repo.Registration(ctx, user)
+	user, err := s.repo.Registration(ctx, userModel)
+	if err != nil {
+		return "", err
+	}
+
+	newJwtToken := token.NewJwtToken(s.config.SecretKey)
+
+	jwtToken, err := newJwtToken.GenerateToken(user)
+	if err != nil {
+		return "", err
+	}
+
+	return jwtToken, nil
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 	"net/http"
+	"time"
 
 	"github.com/bubaew95/yandex-diploma/internal/core/ports"
 )
@@ -51,13 +52,24 @@ func (u UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := u.service.Registration(r.Context(), req)
+	token, err := u.service.Registration(r.Context(), req)
 	if err != nil {
 		logger.Log.Info("Registration error", zap.Error(err))
 		HandleErrors(w, err)
 		return
 	}
-	
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "auth_token",
+		Value:    token,
+		Expires:  time.Now().Add(24 * time.Hour),
+		HttpOnly: true,
+	})
+
+	WriteJSON(w, http.StatusOK, response.SuccessResponseSignUp{
+		Status:  "success",
+		Message: "User successfully registered and authenticated",
+	})
 }
 
 func (u UserHandler) Login(w http.ResponseWriter, r *http.Request) {
