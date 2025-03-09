@@ -5,7 +5,7 @@ CREATE TABLE orders (
     number BIGINT UNIQUE NOT NULL,
     status VARCHAR(40) NOT NULL,
     accrual INTEGER DEFAULT 0,
-    uploaded_at timestamp DEFAULT NOW()
+    uploaded_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 ALTER TABLE orders ADD CONSTRAINT FK_USER_ORDERS FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
 

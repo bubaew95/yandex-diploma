@@ -2,12 +2,14 @@ package service
 
 import (
 	"context"
+	"github.com/ShiraazMoollatjie/goluhn"
 	"github.com/bubaew95/yandex-diploma/conf"
 	"github.com/bubaew95/yandex-diploma/internal/core/entity/orderentity"
 	"github.com/bubaew95/yandex-diploma/internal/core/entity/userentity"
 	apperrors "github.com/bubaew95/yandex-diploma/internal/core/errors"
 	"github.com/bubaew95/yandex-diploma/internal/core/model/ordersmodel"
 	"github.com/bubaew95/yandex-diploma/internal/core/ports"
+	"regexp"
 	"strconv"
 )
 
@@ -29,7 +31,15 @@ func (s OrdersService) AddOrdersNumber(ctx context.Context, number string) error
 		return apperrors.UserNotFoundErr
 	}
 
-	orderNum, err := strconv.ParseInt(number, 10, 64)
+	reg := regexp.MustCompile("[^0-9]+")
+	num := reg.ReplaceAllString(number, "")
+
+	err := goluhn.Validate(num)
+	if err != nil {
+		return err
+	}
+
+	orderNum, err := strconv.ParseInt(num, 10, 64)
 	if err != nil {
 		return err
 	}

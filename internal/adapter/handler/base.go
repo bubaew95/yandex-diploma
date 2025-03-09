@@ -34,6 +34,11 @@ func HandleErrors(w http.ResponseWriter, err error) {
 		statusCode = http.StatusConflict
 	case errors.Is(err, apperrors.OrderAddedThisUserErr):
 		statusCode = http.StatusOK
+	case errors.Is(err, apperrors.InvalidOrderNumberErr):
+		statusCode = http.StatusUnprocessableEntity
+		message = "Incorrect order number format"
+	case errors.Is(err, apperrors.OrdersEmptyErr):
+		statusCode = http.StatusNoContent
 	}
 
 	WriteJSON(w, statusCode, response.Response{

@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"fmt"
 	"github.com/bubaew95/yandex-diploma/internal/core/entity/orderentity"
 	apperrors "github.com/bubaew95/yandex-diploma/internal/core/errors"
 	"github.com/bubaew95/yandex-diploma/internal/core/model/ordersmodel"
@@ -78,37 +77,27 @@ func (o OrdersRepository) OrdersByUserId(ctx context.Context, userId int64) ([]o
 	}
 	defer rows.Close()
 
-	if !rows.Next() {
-		if err := rows.Err(); err != nil {
-			return []ordersmodel.Orders{}, err
-		}
-		return []ordersmodel.Orders{}, apperrors.OrderNotFoundErr
-	}
-
-	var orders []ordersmodel.Orders
+	orders := make([]ordersmodel.Orders, 0)
 	for rows.Next() {
 		var order ordersmodel.Orders
-		var uploadedAt string
+		var uploadedAt time.Time
 
 		err = rows.Scan(&order.Number, &order.Status, &order.Accrual, &uploadedAt)
 		if err != nil {
-			fmt.Println("test", err)
 			return []ordersmodel.Orders{}, err
 		}
 
-		timeParse, err := time.Parse(time.RFC822, uploadedAt)
-		if err != nil {
-			return []ordersmodel.Orders{}, err
-		}
-		fmt.Println("timeParse", timeParse)
-
-		order.UploadedAt = ordersmodel.CustomTime{Time: timeParse}
+		order.UploadedAt = uploadedAt.Format(time.RFC3339)
 
 		orders = append(orders, order)
 	}
 
 	if err = rows.Err(); err != nil {
 		return nil, err
+	}
+
+	if len(orders) == 0 {
+		return orders, apperrors.OrdersEmptyErr
 	}
 
 	return orders, nil

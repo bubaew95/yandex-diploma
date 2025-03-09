@@ -9,6 +9,8 @@ var (
 	UserNotFoundErr          ErrorResponse = errors.New("user not found")
 	TokenNotFoundErr         ErrorResponse = errors.New("token not found")
 	OrderNotFoundErr         ErrorResponse = errors.New("order not found")
+	OrdersEmptyErr           ErrorResponse = errors.New("orders empty")
 	OrderAddedAnotherUserErr ErrorResponse = errors.New("order number has already been uploaded by another user")
 	OrderAddedThisUserErr    ErrorResponse = errors.New("order number has already been uploaded by this user")
+	InvalidOrderNumberErr    ErrorResponse = errors.New("incorrect order number format")
 )

@@ -1,12 +1,10 @@
 package handler
 
 import (
-	"github.com/ShiraazMoollatjie/goluhn"
 	"github.com/bubaew95/yandex-diploma/internal/core/dto/response"
 	"github.com/bubaew95/yandex-diploma/internal/core/ports"
 	"io"
 	"net/http"
-	"regexp"
 )
 
 type OrdersHandler struct {
@@ -29,18 +27,7 @@ func (o OrdersHandler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	reg := regexp.MustCompile("[^0-9]+")
-	orderNum := reg.ReplaceAllString(string(resp), "")
-
-	err = goluhn.Validate(orderNum)
-	if err != nil {
-		WriteJSON(w, http.StatusUnprocessableEntity, response.Response{
-			Status:  "failed",
-			Message: "Incorrect order number format",
-		})
-	}
-
-	err = o.service.AddOrdersNumber(r.Context(), orderNum)
+	err = o.service.AddOrdersNumber(r.Context(), string(resp))
 	if err != nil {
 		HandleErrors(w, err)
 		return
@@ -48,7 +35,7 @@ func (o OrdersHandler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 
 	WriteJSON(w, http.StatusOK, response.Response{
 		Status:  "success",
-		Message: orderNum,
+		Message: string(resp),
 	})
 }
 
