@@ -22,18 +22,21 @@ func WriteJSON(w http.ResponseWriter, statusCode int, data interface{}) {
 
 func HandleErrors(w http.ResponseWriter, err error) {
 	statusCode := http.StatusInternalServerError
-	message := ""
+	message := err.Error()
 
 	switch {
-	case errors.Is(err, apperrors.LoginAlreadyExists):
+	case errors.Is(err, apperrors.LoginAlreadyExistsErr):
 		statusCode = http.StatusConflict
-		message = err.Error()
-	case errors.Is(err, apperrors.UserNotFound):
+	case errors.Is(err, apperrors.UserNotFoundErr):
 		statusCode = http.StatusUnauthorized
 		message = "Incorrect login or password"
+	case errors.Is(err, apperrors.OrderAddedAnotherUserErr):
+		statusCode = http.StatusConflict
+	case errors.Is(err, apperrors.OrderAddedThisUserErr):
+		statusCode = http.StatusOK
 	}
 
-	WriteJSON(w, statusCode, response.ErrorResponse{
+	WriteJSON(w, statusCode, response.Response{
 		Message: message,
 		Status:  "failed",
 	})

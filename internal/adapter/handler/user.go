@@ -6,7 +6,6 @@ import (
 	"github.com/bubaew95/yandex-diploma/internal/core/dto/request/authdto"
 	"github.com/bubaew95/yandex-diploma/internal/core/dto/response"
 	"github.com/bubaew95/yandex-diploma/internal/core/dto/response/resplogindto"
-	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 	"net/http"
 	"time"
@@ -16,28 +15,19 @@ import (
 
 type UserHandler struct {
 	service ports.UserService
-	router  *chi.Mux
 }
 
-func NewUserHandler(r *chi.Mux, service ports.UserService) *UserHandler {
+func NewUserHandler(service ports.UserService) *UserHandler {
 	return &UserHandler{
 		service: service,
-		router:  r,
 	}
-}
-
-func (u UserHandler) InitRoute() {
-	u.router.Route("/user", func(r chi.Router) {
-		r.Post("/register", u.SignUp)
-		r.Post("/login", u.Login)
-	})
 }
 
 func (u UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	var req authdto.SignUpRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		logger.Log.Info("Json encode error", zap.Error(err))
-		WriteJSON(w, http.StatusBadRequest, response.ErrorResponse{
+		WriteJSON(w, http.StatusBadRequest, response.Response{
 			Status:  "failed",
 			Message: "json encode error",
 		})
@@ -46,7 +36,7 @@ func (u UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 
 	if validationErrors := req.Validate(); len(validationErrors) > 0 {
 		logger.Log.Info("Validation error", zap.Any("errors", validationErrors))
-		WriteJSON(w, http.StatusBadRequest, response.ErrorResponse{
+		WriteJSON(w, http.StatusBadRequest, response.Response{
 			Errors: validationErrors,
 			Status: "failed",
 		})
@@ -67,7 +57,7 @@ func (u UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 	})
 
-	WriteJSON(w, http.StatusOK, response.ResponseMessage{
+	WriteJSON(w, http.StatusOK, response.Response{
 		Status:  "success",
 		Message: "User successfully registered and authenticated",
 	})
@@ -77,7 +67,7 @@ func (u UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	var signIn authdto.SignInRequest
 	if err := json.NewDecoder(r.Body).Decode(&signIn); err != nil {
 		logger.Log.Info("Json encode error", zap.Error(err))
-		WriteJSON(w, http.StatusBadRequest, response.ErrorResponse{
+		WriteJSON(w, http.StatusBadRequest, response.Response{
 			Status:  "failed",
 			Message: "json encode error",
 		})
@@ -86,7 +76,7 @@ func (u UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	if validationErrors := signIn.Validate(); len(validationErrors) > 0 {
 		logger.Log.Info("Validation error", zap.Any("errors", validationErrors))
-		WriteJSON(w, http.StatusBadRequest, response.ErrorResponse{
+		WriteJSON(w, http.StatusBadRequest, response.Response{
 			Errors: validationErrors,
 			Status: "failed",
 		})

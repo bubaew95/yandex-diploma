@@ -1,11 +1,57 @@
 package service
 
-import "github.com/bubaew95/yandex-diploma/internal/core/ports"
+import (
+	"context"
+	"github.com/bubaew95/yandex-diploma/conf"
+	"github.com/bubaew95/yandex-diploma/internal/core/entity/orderentity"
+	"github.com/bubaew95/yandex-diploma/internal/core/entity/userentity"
+	apperrors "github.com/bubaew95/yandex-diploma/internal/core/errors"
+	"github.com/bubaew95/yandex-diploma/internal/core/model/ordersmodel"
+	"github.com/bubaew95/yandex-diploma/internal/core/ports"
+	"strconv"
+)
 
 type OrdersService struct {
-	repo ports.OrderRepository
+	repo   ports.OrderRepository
+	config *conf.Config
 }
 
-func NewOrdersService(repo ports.OrderRepository) *OrdersService {
-	return &OrdersService{repo: repo}
+func NewOrdersService(repo ports.OrderRepository, conf *conf.Config) *OrdersService {
+	return &OrdersService{
+		repo:   repo,
+		config: conf,
+	}
+}
+
+func (s OrdersService) AddOrdersNumber(ctx context.Context, number string) error {
+	user, ok := ctx.Value("user").(userentity.User)
+	if !ok {
+		return apperrors.UserNotFoundErr
+	}
+
+	orderNum, err := strconv.ParseInt(number, 10, 64)
+	if err != nil {
+		return err
+	}
+
+	userOrder := orderentity.Order{
+		UserId: user.Id,
+		Number: orderNum,
+	}
+
+	return s.repo.AddOrdersNumber(ctx, userOrder)
+}
+
+func (s OrdersService) OrdersByUserId(ctx context.Context) ([]ordersmodel.Orders, error) {
+	user, ok := ctx.Value("user").(userentity.User)
+	if !ok {
+		return nil, apperrors.UserNotFoundErr
+	}
+
+	orders, err := s.repo.OrdersByUserId(ctx, user.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	return orders, nil
 }

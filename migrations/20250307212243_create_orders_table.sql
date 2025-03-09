@@ -1,0 +1,14 @@
+-- +goose Up
+CREATE TABLE orders (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER DEFAULT NULL,
+    number BIGINT UNIQUE NOT NULL,
+    status VARCHAR(40) NOT NULL,
+    accrual INTEGER DEFAULT 0,
+    uploaded_at timestamp DEFAULT NOW()
+);
+ALTER TABLE orders ADD CONSTRAINT FK_USER_ORDERS FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
+
+-- +goose Down
+ALTER TABLE orders DROP CONSTRAINT FK_USER_ORDERS;
+DROP TABLE orders;

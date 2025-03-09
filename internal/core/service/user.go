@@ -6,8 +6,8 @@ import (
 	"github.com/bubaew95/yandex-diploma/internal/core/dto/request/authdto"
 	"github.com/bubaew95/yandex-diploma/internal/core/model/usermodel"
 	"github.com/bubaew95/yandex-diploma/internal/core/ports"
-	"github.com/bubaew95/yandex-diploma/internal/core/token"
 	"github.com/bubaew95/yandex-diploma/pkg/crypto"
+	"github.com/bubaew95/yandex-diploma/pkg/token"
 )
 
 type UserService struct {
@@ -61,7 +61,7 @@ func (s UserService) Authorization(ctx context.Context, req authdto.SignInReques
 		Login:    req.Login,
 		Password: password,
 	}
-	
+
 	user, err := s.repo.FindUserByLoginAndPassword(ctx, userModel)
 	if err != nil {
 		return "", err

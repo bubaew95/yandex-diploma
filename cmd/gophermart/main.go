@@ -41,12 +41,29 @@ func main() {
 	route := chi.NewRouter()
 	route.Use(localMiddleware.LoggerMiddleware)
 	route.Use(middleware.AllowContentEncoding("gzip"))
-	route.Use(localMiddleware.AuthMiddleware(config))
 
 	userRepository := repository.NewUserRepository(DB)
 	userService := service.NewUserService(userRepository, config)
-	useHandler := handler.NewUserHandler(route, userService)
-	useHandler.InitRoute()
+	userHandler := handler.NewUserHandler(userService)
+
+	orderRepository := repository.NewOrdersRepository(DB)
+	orderService := service.NewOrdersService(orderRepository, config)
+	orderHandler := handler.NewOrdersHandler(orderService)
+
+	route.Group(func(r chi.Router) {
+		r.Route("/user", func(lr chi.Router) {
+			lr.Post("/register", userHandler.SignUp)
+			lr.Post("/login", userHandler.Login)
+		})
+	})
+
+	route.Group(func(r chi.Router) {
+		r.Use(localMiddleware.AuthMiddleware(config))
+		r.Route("/user/orders", func(lr chi.Router) {
+			lr.Post("/", orderHandler.CreateOrder)
+			lr.Get("/", orderHandler.UserOrders)
+		})
+	})
 
 	runServer(route, config)
 }

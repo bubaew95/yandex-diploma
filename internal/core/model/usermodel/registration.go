@@ -16,7 +16,7 @@ func (u UserRegistration) CheckLogin(err error) error {
 	var pgErr *pgconn.PgError
 
 	if errors.As(err, &pgErr) && pgerrcode.IsIntegrityConstraintViolation(pgErr.Code) {
-		return apperrors.LoginAlreadyExists
+		return apperrors.LoginAlreadyExistsErr
 	}
 
 	return err

@@ -1,9 +1,12 @@
 package middleware
 
 import (
-	"errors"
+	"context"
 	"github.com/bubaew95/yandex-diploma/conf"
-	"github.com/bubaew95/yandex-diploma/internal/core/token"
+	"github.com/bubaew95/yandex-diploma/internal/adapter/handler"
+	"github.com/bubaew95/yandex-diploma/internal/core/dto/response"
+	apperrors "github.com/bubaew95/yandex-diploma/internal/core/errors"
+	"github.com/bubaew95/yandex-diploma/pkg/token"
 	"net/http"
 	"strings"
 )
@@ -22,7 +25,7 @@ func getToken(r *http.Request) (string, error) {
 		return cookie.Value, nil
 	}
 
-	return "", errors.New("token not found")
+	return "", apperrors.TokenNotFoundErr
 }
 
 func AuthMiddleware(cfg *conf.Config) func(next http.Handler) http.Handler {
@@ -30,19 +33,27 @@ func AuthMiddleware(cfg *conf.Config) func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			tokenStr, err := getToken(r)
 			if err != nil {
-				http.Error(w, "Unauthorized", http.StatusUnauthorized)
+				handler.WriteJSON(w, http.StatusUnauthorized, response.Response{
+					Status:  "failed",
+					Message: "Unauthorized",
+				})
 				return
 			}
 
 			jwtToken := token.NewJwtToken(cfg.SecretKey)
-			_, err = jwtToken.EncodeToken(tokenStr)
-
+			user, err := jwtToken.EncodeToken(tokenStr)
 			if err != nil {
-				http.Error(w, "Unauthorized", http.StatusUnauthorized)
+				handler.WriteJSON(w, http.StatusUnauthorized, response.Response{
+					Status:  "failed",
+					Message: "Unauthorized",
+				})
 				return
 			}
 
-			next.ServeHTTP(w, r)
+			ctx := context.WithValue(r.Context(), "user", user)
+			request := r.WithContext(ctx)
+
+			next.ServeHTTP(w, request)
 		})
 	}
 }
