@@ -3,9 +3,9 @@ package middleware
 import (
 	"context"
 	"github.com/bubaew95/yandex-diploma/conf"
-	"github.com/bubaew95/yandex-diploma/internal/adapter/handler"
 	"github.com/bubaew95/yandex-diploma/internal/core/dto/response"
 	apperrors "github.com/bubaew95/yandex-diploma/internal/core/errors"
+	"github.com/bubaew95/yandex-diploma/internal/utils"
 	"github.com/bubaew95/yandex-diploma/pkg/token"
 	"net/http"
 	"strings"
@@ -33,7 +33,7 @@ func AuthMiddleware(cfg *conf.Config) func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			tokenStr, err := getToken(r)
 			if err != nil {
-				handler.WriteJSON(w, http.StatusUnauthorized, response.Response{
+				utils.WriteJSON(w, http.StatusUnauthorized, response.Response{
 					Status:  "failed",
 					Message: "Unauthorized",
 				})
@@ -43,7 +43,7 @@ func AuthMiddleware(cfg *conf.Config) func(next http.Handler) http.Handler {
 			jwtToken := token.NewJwtToken(cfg.SecretKey)
 			user, err := jwtToken.EncodeToken(tokenStr)
 			if err != nil {
-				handler.WriteJSON(w, http.StatusUnauthorized, response.Response{
+				utils.WriteJSON(w, http.StatusUnauthorized, response.Response{
 					Status:  "failed",
 					Message: "Unauthorized",
 				})

@@ -3,6 +3,7 @@ package handler
 import (
 	"github.com/bubaew95/yandex-diploma/internal/core/dto/response"
 	"github.com/bubaew95/yandex-diploma/internal/core/ports"
+	"github.com/bubaew95/yandex-diploma/internal/utils"
 	"io"
 	"net/http"
 )
@@ -20,7 +21,7 @@ func NewOrdersHandler(service ports.OrderService) *OrdersHandler {
 func (o OrdersHandler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 	resp, err := io.ReadAll(r.Body)
 	if err != nil {
-		WriteJSON(w, http.StatusInternalServerError, response.Response{
+		utils.WriteJSON(w, http.StatusInternalServerError, response.Response{
 			Status:  "failed",
 			Message: err.Error(),
 		})
@@ -33,7 +34,7 @@ func (o OrdersHandler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	WriteJSON(w, http.StatusOK, response.Response{
+	utils.WriteJSON(w, http.StatusAccepted, response.Response{
 		Status:  "success",
 		Message: string(resp),
 	})
@@ -46,5 +47,5 @@ func (o OrdersHandler) UserOrders(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	WriteJSON(w, http.StatusOK, order)
+	utils.WriteJSON(w, http.StatusOK, order)
 }

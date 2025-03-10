@@ -13,4 +13,5 @@ var (
 	OrderAddedAnotherUserErr ErrorResponse = errors.New("order number has already been uploaded by another user")
 	OrderAddedThisUserErr    ErrorResponse = errors.New("order number has already been uploaded by this user")
 	InvalidOrderNumberErr    ErrorResponse = errors.New("incorrect order number format")
+	IncorrectRequestErr      ErrorResponse = errors.New(" Incorrect request format")
 )
