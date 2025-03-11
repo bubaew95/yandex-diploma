@@ -101,7 +101,7 @@ func TestOrdersHandlerCreateOrder(t *testing.T) {
 					Number: 5062821234567892,
 					UserId: 1,
 				},
-				Err: apperrors.OrderAddedAnotherUserErr,
+				Err: apperrors.ErrOrderAddedAnotherUser,
 			},
 		},
 		{
@@ -117,7 +117,7 @@ func TestOrdersHandlerCreateOrder(t *testing.T) {
 					Number: 5062821234567892,
 					UserId: 1,
 				},
-				Err: apperrors.OrderAddedThisUserErr,
+				Err: apperrors.ErrOrderAddedThisUser,
 			},
 		},
 		{

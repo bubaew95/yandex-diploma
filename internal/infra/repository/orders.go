@@ -46,10 +46,10 @@ func (o OrdersRepository) AddOrdersNumber(ctx context.Context, order orderentity
 
 func checkAddedOrder(order orderentity.OrderDetails, userId int64) error {
 	if order.UserId != userId {
-		return apperrors.OrderAddedAnotherUserErr
+		return apperrors.ErrOrderAddedAnotherUser
 	}
 
-	return apperrors.OrderAddedThisUserErr
+	return apperrors.ErrOrderAddedThisUser
 }
 
 func (o OrdersRepository) GetOrderByNumber(ctx context.Context, number int64) (orderentity.OrderDetails, error) {
@@ -63,7 +63,7 @@ func (o OrdersRepository) GetOrderByNumber(ctx context.Context, number int64) (o
 	var order orderentity.OrderDetails
 	err := row.Scan(&order.Id, &order.Status, &order.UserId, &order.CreatedAt)
 	if err != nil {
-		return orderentity.OrderDetails{}, apperrors.OrderNotFoundErr
+		return orderentity.OrderDetails{}, apperrors.ErrOrderNotFound
 	}
 
 	return order, nil
@@ -97,7 +97,7 @@ func (o OrdersRepository) OrdersByUserId(ctx context.Context, userId int64) ([]o
 	}
 
 	if len(orders) == 0 {
-		return orders, apperrors.OrdersEmptyErr
+		return orders, apperrors.ErrOrdersEmpty
 	}
 
 	return orders, nil

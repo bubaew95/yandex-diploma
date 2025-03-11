@@ -1,6 +1,8 @@
 module github.com/bubaew95/yandex-diploma
 
-go 1.22
+go 1.23
+
+toolchain go1.24.0
 
 require (
 	github.com/ShiraazMoollatjie/goluhn v0.0.0-20211017190329-0d86158c056a

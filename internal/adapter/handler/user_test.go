@@ -96,7 +96,7 @@ func TestUserHandlerSignUp(t *testing.T) {
 			},
 			MockData: mockData{
 				Data: userentity.User{},
-				Err:  apperrors.LoginAlreadyExistsErr,
+				Err:  apperrors.ErrLoginAlreadyExists,
 			},
 		},
 	}
@@ -202,7 +202,7 @@ func TestUserHandlerLogin(t *testing.T) {
 			},
 			MockData: mockData{
 				Data: userentity.User{},
-				Err:  apperrors.UserNotFoundErr,
+				Err:  apperrors.ErrUserNotFound,
 			},
 		},
 	}

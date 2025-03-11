@@ -27,12 +27,12 @@ func NewOrdersService(repo ports.OrderRepository, conf *conf.Config) *OrdersServ
 
 func (s OrdersService) AddOrdersNumber(ctx context.Context, number string) error {
 	if number == "" {
-		return apperrors.IncorrectRequestErr
+		return apperrors.ErrIncorrectRequest
 	}
 
 	user, ok := ctx.Value("user").(userentity.User)
 	if !ok {
-		return apperrors.UserNotFoundErr
+		return apperrors.ErrUserNotFound
 	}
 
 	reg := regexp.MustCompile("[^0-9]+")
@@ -40,7 +40,7 @@ func (s OrdersService) AddOrdersNumber(ctx context.Context, number string) error
 
 	err := goluhn.Validate(num)
 	if err != nil {
-		return apperrors.InvalidOrderNumberErr
+		return apperrors.ErrInvalidOrderNumber
 	}
 
 	orderNum, err := strconv.ParseInt(num, 10, 64)
@@ -59,7 +59,7 @@ func (s OrdersService) AddOrdersNumber(ctx context.Context, number string) error
 func (s OrdersService) OrdersByUserId(ctx context.Context) ([]ordersmodel.Orders, error) {
 	user, ok := ctx.Value("user").(userentity.User)
 	if !ok {
-		return nil, apperrors.UserNotFoundErr
+		return nil, apperrors.ErrUserNotFound
 	}
 
 	orders, err := s.repo.OrdersByUserId(ctx, user.Id)

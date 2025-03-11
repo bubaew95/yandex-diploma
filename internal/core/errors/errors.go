@@ -5,13 +5,13 @@ import "errors"
 type ErrorResponse error
 
 var (
-	LoginAlreadyExistsErr    ErrorResponse = errors.New("login already exists")
-	UserNotFoundErr          ErrorResponse = errors.New("user not found")
-	TokenNotFoundErr         ErrorResponse = errors.New("token not found")
-	OrderNotFoundErr         ErrorResponse = errors.New("order not found")
-	OrdersEmptyErr           ErrorResponse = errors.New("orders empty")
-	OrderAddedAnotherUserErr ErrorResponse = errors.New("order number has already been uploaded by another user")
-	OrderAddedThisUserErr    ErrorResponse = errors.New("order number has already been uploaded by this user")
-	InvalidOrderNumberErr    ErrorResponse = errors.New("incorrect order number format")
-	IncorrectRequestErr      ErrorResponse = errors.New(" Incorrect request format")
+	ErrLoginAlreadyExists    ErrorResponse = errors.New("login already exists")
+	ErrUserNotFound          ErrorResponse = errors.New("user not found")
+	ErrTokenNotFound         ErrorResponse = errors.New("token not found")
+	ErrOrderNotFound         ErrorResponse = errors.New("order not found")
+	ErrOrdersEmpty           ErrorResponse = errors.New("orders empty")
+	ErrOrderAddedAnotherUser ErrorResponse = errors.New("order number has already been uploaded by another user")
+	ErrOrderAddedThisUser    ErrorResponse = errors.New("order number has already been uploaded by this user")
+	ErrInvalidOrderNumber    ErrorResponse = errors.New("incorrect order number format")
+	ErrIncorrectRequest      ErrorResponse = errors.New(" Incorrect request format")
 )

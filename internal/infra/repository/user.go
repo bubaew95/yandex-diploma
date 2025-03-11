@@ -48,7 +48,7 @@ func (r UserRepository) FindUserByLoginAndPassword(ctx context.Context, u usermo
 
 	var user userentity.User
 	if err := row.Scan(&user.Id, &user.Login); err != nil {
-		return userentity.User{}, apperrors.UserNotFoundErr
+		return userentity.User{}, apperrors.ErrUserNotFound
 	}
 
 	return user, nil

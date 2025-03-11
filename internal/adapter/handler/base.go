@@ -13,21 +13,21 @@ func HandleErrors(w http.ResponseWriter, err error) {
 	message := err.Error()
 
 	switch {
-	case errors.Is(err, apperrors.LoginAlreadyExistsErr):
+	case errors.Is(err, apperrors.ErrLoginAlreadyExists):
 		statusCode = http.StatusConflict
-	case errors.Is(err, apperrors.UserNotFoundErr):
+	case errors.Is(err, apperrors.ErrUserNotFound):
 		statusCode = http.StatusUnauthorized
 		message = "Incorrect login or password"
-	case errors.Is(err, apperrors.OrderAddedAnotherUserErr):
+	case errors.Is(err, apperrors.ErrOrderAddedAnotherUser):
 		statusCode = http.StatusConflict
-	case errors.Is(err, apperrors.OrderAddedThisUserErr):
+	case errors.Is(err, apperrors.ErrOrderAddedThisUser):
 		statusCode = http.StatusOK
-	case errors.Is(err, apperrors.InvalidOrderNumberErr):
+	case errors.Is(err, apperrors.ErrInvalidOrderNumber):
 		statusCode = http.StatusUnprocessableEntity
 		message = "Incorrect order number format"
-	case errors.Is(err, apperrors.OrdersEmptyErr):
+	case errors.Is(err, apperrors.ErrOrdersEmpty):
 		statusCode = http.StatusNoContent
-	case errors.Is(err, apperrors.IncorrectRequestErr):
+	case errors.Is(err, apperrors.ErrIncorrectRequest):
 		statusCode = http.StatusBadRequest
 		message = "Incorrect request format"
 

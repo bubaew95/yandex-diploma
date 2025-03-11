@@ -25,7 +25,7 @@ func getToken(r *http.Request) (string, error) {
 		return cookie.Value, nil
 	}
 
-	return "", apperrors.TokenNotFoundErr
+	return "", apperrors.ErrTokenNotFound
 }
 
 func AuthMiddleware(cfg *conf.Config) func(next http.Handler) http.Handler {
