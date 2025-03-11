@@ -41,7 +41,7 @@ func setupOrderTestServer(t *testing.T) (*conf.Config, *mock.MockOrderRepository
 
 func TestOrdersHandlerCreateOrder(t *testing.T) {
 	t.Parallel()
-	
+
 	type want struct {
 		StatusCode  int
 		Result      string
@@ -134,7 +134,6 @@ func TestOrdersHandlerCreateOrder(t *testing.T) {
 			},
 		},
 	}
-
 	config, orderRepositoryMock, ts := setupOrderTestServer(t)
 
 	for _, tt := range testsData {
