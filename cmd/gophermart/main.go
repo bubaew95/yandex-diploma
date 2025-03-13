@@ -67,6 +67,8 @@ func main() {
 				r.Get("/", userHandler.Balance)
 				r.Post("/withdraw", userHandler.Withdraw)
 			})
+
+			r.Get("/withdrawals", userHandler.Withdrawals)
 		})
 	})
 

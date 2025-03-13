@@ -2,11 +2,13 @@ package repository
 
 import (
 	"context"
+	"github.com/bubaew95/yandex-diploma/internal/core/dto/response/responsedto"
 	"github.com/bubaew95/yandex-diploma/internal/core/entity/userentity"
 	apperrors "github.com/bubaew95/yandex-diploma/internal/core/errors"
 	"github.com/bubaew95/yandex-diploma/internal/core/model/usermodel"
 	"github.com/bubaew95/yandex-diploma/internal/infra"
 	_ "github.com/jackc/pgx/v5/stdlib"
+	"time"
 )
 
 type UserRepository struct {
@@ -124,4 +126,30 @@ func (r UserRepository) AddWithdraw(ctx context.Context, ur usermodel.Withdraw) 
 	}
 
 	return nil
+}
+
+func (r UserRepository) GetWithdrawals(ctx context.Context) ([]responsedto.Withdraw, error) {
+	sqlString := "SELECT order_number, amount, processed_at FROM withdraws ORDER BY processed_at DESC"
+	rows, err := r.db.QueryContext(ctx, sqlString)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	withdraws := make([]responsedto.Withdraw, 0)
+	for rows.Next() {
+		var withdraw responsedto.Withdraw
+		var processedAt time.Time
+		
+		err := rows.Scan(&withdraw.OrderNumber, &withdraw.Sum, &processedAt)
+		if err != nil {
+			return nil, err
+		}
+
+		withdraw.ProcessedAt = processedAt.Format(time.RFC3339)
+
+		withdraws = append(withdraws, withdraw)
+	}
+
+	return withdraws, nil
 }

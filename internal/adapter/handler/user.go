@@ -139,3 +139,19 @@ func (u UserHandler) Withdraw(w http.ResponseWriter, r *http.Request) {
 		Message: "User successfully withdrawn",
 	})
 }
+
+func (u UserHandler) Withdrawals(w http.ResponseWriter, r *http.Request) {
+	widthdraws, err := u.service.GetWithdrawals(r.Context())
+	if err != nil {
+		logger.Log.Info("GetWithdrawals error", zap.Error(err))
+		HandleErrors(w, err)
+		return
+	}
+
+	status := http.StatusOK
+	if len(widthdraws) == 0 {
+		status = http.StatusNoContent
+	}
+
+	utils.WriteJSON(w, status, widthdraws)
+}

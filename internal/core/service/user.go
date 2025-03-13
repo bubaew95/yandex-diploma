@@ -6,6 +6,7 @@ import (
 	"github.com/bubaew95/yandex-diploma/conf"
 	"github.com/bubaew95/yandex-diploma/internal/core/dto/request/authdto"
 	"github.com/bubaew95/yandex-diploma/internal/core/dto/request/userrequest"
+	"github.com/bubaew95/yandex-diploma/internal/core/dto/response/responsedto"
 	"github.com/bubaew95/yandex-diploma/internal/core/entity/userentity"
 	apperrors "github.com/bubaew95/yandex-diploma/internal/core/errors"
 	"github.com/bubaew95/yandex-diploma/internal/core/model/usermodel"
@@ -118,4 +119,8 @@ func (s UserService) BalanceWithdraw(ctx context.Context, ur userrequest.Withdra
 	}
 
 	return s.repo.BalanceWithdraw(ctx, userModel)
+}
+
+func (s UserService) GetWithdrawals(ctx context.Context) ([]responsedto.Withdraw, error) {
+	return s.repo.GetWithdrawals(ctx)
 }
