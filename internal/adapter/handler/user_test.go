@@ -202,7 +202,7 @@ func TestUserHandlerLogin(t *testing.T) {
 			},
 			MockData: mockData{
 				Data: userentity.User{},
-				Err:  apperrors.ErrUserNotFound,
+				Err:  apperrors.ErrIncorrectUser,
 			},
 		},
 	}

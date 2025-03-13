@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/bubaew95/yandex-diploma/internal/adapter/logger"
 	"github.com/bubaew95/yandex-diploma/internal/core/dto/request/authdto"
+	"github.com/bubaew95/yandex-diploma/internal/core/dto/request/userrequest"
 	"github.com/bubaew95/yandex-diploma/internal/core/dto/response"
 	"github.com/bubaew95/yandex-diploma/internal/core/dto/response/resplogindto"
 	"github.com/bubaew95/yandex-diploma/internal/utils"
@@ -102,5 +103,39 @@ func (u UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, resplogindto.ResponseToken{
 		Token:  token,
 		Expire: tokenExires,
+	})
+}
+
+func (u UserHandler) Balance(w http.ResponseWriter, r *http.Request) {
+	balance, err := u.service.Balance(r.Context())
+	if err != nil {
+		logger.Log.Info("Balance error", zap.Error(err))
+		HandleErrors(w, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, balance)
+}
+
+func (u UserHandler) Withdraw(w http.ResponseWriter, r *http.Request) {
+	var withdraw userrequest.Withdraw
+	if err := json.NewDecoder(r.Body).Decode(&withdraw); err != nil {
+		logger.Log.Info("Json encode error", zap.Error(err))
+		utils.WriteJSON(w, http.StatusBadRequest, response.Response{
+			Status:  "failed",
+			Message: "json encode error",
+		})
+		return
+	}
+
+	err := u.service.BalanceWithdraw(r.Context(), withdraw)
+	if err != nil {
+		HandleErrors(w, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, response.Response{
+		Status:  "success",
+		Message: "User successfully withdrawn",
 	})
 }

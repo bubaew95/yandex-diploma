@@ -48,8 +48,80 @@ func (r UserRepository) FindUserByLoginAndPassword(ctx context.Context, u usermo
 
 	var user userentity.User
 	if err := row.Scan(&user.Id, &user.Login); err != nil {
-		return userentity.User{}, apperrors.ErrUserNotFound
+		return userentity.User{}, apperrors.ErrIncorrectUser
 	}
 
 	return user, nil
+}
+
+func (r UserRepository) GetUserBalance(ctx context.Context, userID int64) (usermodel.Balance, error) {
+	sqlQuery := `
+		SELECT ub.balance, ub.withdrawn FROM user_balance ub
+			INNER JOIN users u ON u.id = ub.user_id
+				WHERE ub.user_id = $1
+	  `
+
+	row := r.db.QueryRowContext(ctx, sqlQuery, userID)
+	if row.Err() != nil {
+		return usermodel.Balance{}, row.Err()
+	}
+
+	var balance usermodel.Balance
+	err := row.Scan(&balance.Current, &balance.Withdrawn)
+	if err != nil {
+		return usermodel.Balance{}, err
+	}
+
+	return balance, nil
+}
+
+func (r UserRepository) BalanceWithdraw(ctx context.Context, ur usermodel.Withdraw) error {
+	balance, err := r.GetUserBalance(ctx, ur.UserID)
+	if err != nil {
+		return err
+	}
+
+	if ur.Amount > balance.Current {
+		return apperrors.ErrInsufficientErr
+	}
+
+	tx, err := r.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	updateBalanceSql := `
+		UPDATE user_balance SET balance = (balance - $1), withdrawn = (withdrawn + $1) 
+			WHERE user_id = $2
+	`
+	_, err = tx.ExecContext(ctx, updateBalanceSql, ur.Amount, ur.UserID)
+	if err != nil {
+		if err := tx.Rollback(); err != nil {
+			return err
+		}
+		return apperrors.ErrBalanceUpdate
+	}
+
+	err = r.AddWithdraw(ctx, ur)
+	if err != nil {
+		if err := tx.Rollback(); err != nil {
+			return err
+		}
+		return err
+	}
+
+	return tx.Commit()
+}
+
+func (r UserRepository) AddWithdraw(ctx context.Context, ur usermodel.Withdraw) error {
+	insertWithdrawSql := `
+		INSERT INTO withdraws (user_id, order_number, amount) 
+		VALUES ($1, $2, $3)
+	`
+	_, err := r.db.ExecContext(ctx, insertWithdrawSql, ur.UserID, ur.OrderNumber, ur.Amount)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

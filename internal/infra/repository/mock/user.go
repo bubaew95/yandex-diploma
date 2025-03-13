@@ -9,6 +9,7 @@ import (
 	reflect "reflect"
 
 	authdto "github.com/bubaew95/yandex-diploma/internal/core/dto/request/authdto"
+	userrequest "github.com/bubaew95/yandex-diploma/internal/core/dto/request/userrequest"
 	userentity "github.com/bubaew95/yandex-diploma/internal/core/entity/userentity"
 	usermodel "github.com/bubaew95/yandex-diploma/internal/core/model/usermodel"
 	gomock "github.com/golang/mock/gomock"
@@ -50,6 +51,35 @@ func (m *MockUserService) Authorization(ctx context.Context, s authdto.SignInReq
 func (mr *MockUserServiceMockRecorder) Authorization(ctx, s interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Authorization", reflect.TypeOf((*MockUserService)(nil).Authorization), ctx, s)
+}
+
+// Balance mocks base method.
+func (m *MockUserService) Balance(ctx context.Context) (usermodel.Balance, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Balance", ctx)
+	ret0, _ := ret[0].(usermodel.Balance)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Balance indicates an expected call of Balance.
+func (mr *MockUserServiceMockRecorder) Balance(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Balance", reflect.TypeOf((*MockUserService)(nil).Balance), ctx)
+}
+
+// BalanceWithdraw mocks base method.
+func (m *MockUserService) BalanceWithdraw(ctx context.Context, ur userrequest.Withdraw) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BalanceWithdraw", ctx, ur)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// BalanceWithdraw indicates an expected call of BalanceWithdraw.
+func (mr *MockUserServiceMockRecorder) BalanceWithdraw(ctx, ur interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BalanceWithdraw", reflect.TypeOf((*MockUserService)(nil).BalanceWithdraw), ctx, ur)
 }
 
 // Registration mocks base method.
@@ -105,6 +135,20 @@ func (mr *MockUserRepositoryMockRecorder) AddUser(ctx, s interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddUser", reflect.TypeOf((*MockUserRepository)(nil).AddUser), ctx, s)
 }
 
+// BalanceWithdraw mocks base method.
+func (m *MockUserRepository) BalanceWithdraw(ctx context.Context, ur usermodel.Withdraw) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BalanceWithdraw", ctx, ur)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// BalanceWithdraw indicates an expected call of BalanceWithdraw.
+func (mr *MockUserRepositoryMockRecorder) BalanceWithdraw(ctx, ur interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BalanceWithdraw", reflect.TypeOf((*MockUserRepository)(nil).BalanceWithdraw), ctx, ur)
+}
+
 // FindUserByLoginAndPassword mocks base method.
 func (m *MockUserRepository) FindUserByLoginAndPassword(ctx context.Context, s usermodel.UserLogin) (userentity.User, error) {
 	m.ctrl.T.Helper()
@@ -118,4 +162,19 @@ func (m *MockUserRepository) FindUserByLoginAndPassword(ctx context.Context, s u
 func (mr *MockUserRepositoryMockRecorder) FindUserByLoginAndPassword(ctx, s interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindUserByLoginAndPassword", reflect.TypeOf((*MockUserRepository)(nil).FindUserByLoginAndPassword), ctx, s)
+}
+
+// GetUserBalance mocks base method.
+func (m *MockUserRepository) GetUserBalance(ctx context.Context, userID int64) (usermodel.Balance, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserBalance", ctx, userID)
+	ret0, _ := ret[0].(usermodel.Balance)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserBalance indicates an expected call of GetUserBalance.
+func (mr *MockUserRepositoryMockRecorder) GetUserBalance(ctx, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserBalance", reflect.TypeOf((*MockUserRepository)(nil).GetUserBalance), ctx, userID)
 }

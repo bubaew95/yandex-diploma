@@ -8,7 +8,7 @@ import (
 	context "context"
 	reflect "reflect"
 
-	orderentity "github.com/bubaew95/yandex-diploma/internal/core/entity/orderentity"
+	ordersdto "github.com/bubaew95/yandex-diploma/internal/core/dto/response/ordersdto"
 	ordersmodel "github.com/bubaew95/yandex-diploma/internal/core/model/ordersmodel"
 	gomock "github.com/golang/mock/gomock"
 )
@@ -51,10 +51,10 @@ func (mr *MockOrderServiceMockRecorder) AddOrdersNumber(ctx, number interface{})
 }
 
 // OrdersByUserId mocks base method.
-func (m *MockOrderService) OrdersByUserId(ctx context.Context) ([]ordersmodel.Orders, error) {
+func (m *MockOrderService) OrdersByUserId(ctx context.Context) ([]ordersdto.Orders, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "OrdersByUserId", ctx)
-	ret0, _ := ret[0].([]ordersmodel.Orders)
+	ret0, _ := ret[0].([]ordersdto.Orders)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -89,7 +89,7 @@ func (m *MockOrderRepository) EXPECT() *MockOrderRepositoryMockRecorder {
 }
 
 // AddOrdersNumber mocks base method.
-func (m *MockOrderRepository) AddOrdersNumber(ctx context.Context, order orderentity.Order) error {
+func (m *MockOrderRepository) AddOrdersNumber(ctx context.Context, order ordersmodel.Order) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddOrdersNumber", ctx, order)
 	ret0, _ := ret[0].(error)
@@ -103,10 +103,10 @@ func (mr *MockOrderRepositoryMockRecorder) AddOrdersNumber(ctx, order interface{
 }
 
 // OrdersByUserId mocks base method.
-func (m *MockOrderRepository) OrdersByUserId(ctx context.Context, userId int64) ([]ordersmodel.Orders, error) {
+func (m *MockOrderRepository) OrdersByUserId(ctx context.Context, userId int64) ([]ordersdto.Orders, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "OrdersByUserId", ctx, userId)
-	ret0, _ := ret[0].([]ordersmodel.Orders)
+	ret0, _ := ret[0].([]ordersdto.Orders)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

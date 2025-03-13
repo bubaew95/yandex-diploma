@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"github.com/bubaew95/yandex-diploma/internal/core/dto/response/ordersdto"
 	"github.com/bubaew95/yandex-diploma/internal/core/entity/orderentity"
 	apperrors "github.com/bubaew95/yandex-diploma/internal/core/errors"
 	"github.com/bubaew95/yandex-diploma/internal/core/model/ordersmodel"
@@ -29,7 +30,7 @@ func NewOrdersRepository(db *infra.DataBase) *OrdersRepository {
 	}
 }
 
-func (o OrdersRepository) AddOrdersNumber(ctx context.Context, order orderentity.Order) error {
+func (o OrdersRepository) AddOrdersNumber(ctx context.Context, order ordersmodel.Order) error {
 	findOrder, err := o.GetOrderByNumber(ctx, order.Number)
 	if err == nil {
 		return checkAddedOrder(findOrder, order.UserId)
@@ -69,22 +70,22 @@ func (o OrdersRepository) GetOrderByNumber(ctx context.Context, number int64) (o
 	return order, nil
 }
 
-func (o OrdersRepository) OrdersByUserId(ctx context.Context, userId int64) ([]ordersmodel.Orders, error) {
+func (o OrdersRepository) OrdersByUserId(ctx context.Context, userId int64) ([]ordersdto.Orders, error) {
 	sqlQuery := `SELECT number, status, accrual, uploaded_at FROM orders WHERE user_id = $1 ORDER BY uploaded_at DESC`
 	rows, err := o.db.QueryContext(ctx, sqlQuery, userId)
 	if err != nil {
-		return []ordersmodel.Orders{}, err
+		return []ordersdto.Orders{}, err
 	}
 	defer rows.Close()
 
-	orders := make([]ordersmodel.Orders, 0)
+	orders := make([]ordersdto.Orders, 0)
 	for rows.Next() {
-		var order ordersmodel.Orders
+		var order ordersdto.Orders
 		var uploadedAt time.Time
 
 		err = rows.Scan(&order.Number, &order.Status, &order.Accrual, &uploadedAt)
 		if err != nil {
-			return []ordersmodel.Orders{}, err
+			return []ordersdto.Orders{}, err
 		}
 
 		order.UploadedAt = uploadedAt.Format(time.RFC3339)

@@ -50,18 +50,23 @@ func main() {
 	orderService := service.NewOrdersService(orderRepository, config)
 	orderHandler := handler.NewOrdersHandler(orderService)
 
-	route.Group(func(r chi.Router) {
-		r.Route("/user", func(lr chi.Router) {
-			lr.Post("/register", userHandler.SignUp)
-			lr.Post("/login", userHandler.Login)
+	route.Route("/user", func(r chi.Router) {
+		r.Group(func(r chi.Router) {
+			r.Post("/register", userHandler.SignUp)
+			r.Post("/login", userHandler.Login)
 		})
-	})
 
-	route.Group(func(r chi.Router) {
-		r.Use(localMiddleware.AuthMiddleware(config))
-		r.Route("/user/orders", func(lr chi.Router) {
-			lr.Post("/", orderHandler.CreateOrder)
-			lr.Get("/", orderHandler.UserOrders)
+		r.Group(func(r chi.Router) {
+			r.Use(localMiddleware.AuthMiddleware(config))
+			r.Route("/orders", func(r chi.Router) {
+				r.Post("/", orderHandler.CreateOrder)
+				r.Get("/", orderHandler.UserOrders)
+			})
+
+			r.Route("/balance", func(r chi.Router) {
+				r.Get("/", userHandler.Balance)
+				r.Post("/withdraw", userHandler.Withdraw)
+			})
 		})
 	})
 

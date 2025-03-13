@@ -1,0 +1,13 @@
+-- +goose Up
+CREATE TABLE withdraws (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER DEFAULT NULL,
+    order_number BIGINT NOT NULL,
+    amount DECIMAL(10, 2) NOT NULL,
+    processed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+ALTER TABLE withdraws ADD CONSTRAINT FK_WITHDRAWS_USER_ID FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL;
+
+-- +goose Down
+ALTER TABLE withdraws DROP CONSTRAINT FK_WITHDRAWS_USER_ID;
+DROP TABLE withdraws;

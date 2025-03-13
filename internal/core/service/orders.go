@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/ShiraazMoollatjie/goluhn"
 	"github.com/bubaew95/yandex-diploma/conf"
-	"github.com/bubaew95/yandex-diploma/internal/core/entity/orderentity"
+	"github.com/bubaew95/yandex-diploma/internal/core/dto/response/ordersdto"
 	"github.com/bubaew95/yandex-diploma/internal/core/entity/userentity"
 	apperrors "github.com/bubaew95/yandex-diploma/internal/core/errors"
 	"github.com/bubaew95/yandex-diploma/internal/core/model/ordersmodel"
@@ -48,7 +48,7 @@ func (s OrdersService) AddOrdersNumber(ctx context.Context, number string) error
 		return err
 	}
 
-	userOrder := orderentity.Order{
+	userOrder := ordersmodel.Order{
 		UserId: user.Id,
 		Number: orderNum,
 	}
@@ -56,7 +56,7 @@ func (s OrdersService) AddOrdersNumber(ctx context.Context, number string) error
 	return s.repo.AddOrdersNumber(ctx, userOrder)
 }
 
-func (s OrdersService) OrdersByUserId(ctx context.Context) ([]ordersmodel.Orders, error) {
+func (s OrdersService) OrdersByUserId(ctx context.Context) ([]ordersdto.Orders, error) {
 	user, ok := ctx.Value("user").(userentity.User)
 	if !ok {
 		return nil, apperrors.ErrUserNotFound

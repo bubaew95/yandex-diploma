@@ -17,7 +17,8 @@ func HandleErrors(w http.ResponseWriter, err error) {
 		statusCode = http.StatusConflict
 	case errors.Is(err, apperrors.ErrUserNotFound):
 		statusCode = http.StatusUnauthorized
-		message = "Incorrect login or password"
+	case errors.Is(err, apperrors.ErrIncorrectUser):
+		statusCode = http.StatusNotFound
 	case errors.Is(err, apperrors.ErrOrderAddedAnotherUser):
 		statusCode = http.StatusConflict
 	case errors.Is(err, apperrors.ErrOrderAddedThisUser):

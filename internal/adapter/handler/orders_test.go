@@ -3,9 +3,9 @@ package handler
 import (
 	"github.com/bubaew95/yandex-diploma/conf"
 	"github.com/bubaew95/yandex-diploma/internal/adapter/handler/middleware"
-	"github.com/bubaew95/yandex-diploma/internal/core/entity/orderentity"
 	"github.com/bubaew95/yandex-diploma/internal/core/entity/userentity"
 	apperrors "github.com/bubaew95/yandex-diploma/internal/core/errors"
+	"github.com/bubaew95/yandex-diploma/internal/core/model/ordersmodel"
 	"github.com/bubaew95/yandex-diploma/internal/core/service"
 	"github.com/bubaew95/yandex-diploma/internal/infra/repository/mock"
 	"github.com/bubaew95/yandex-diploma/internal/utils"
@@ -49,7 +49,7 @@ func TestOrdersHandlerCreateOrder(t *testing.T) {
 	}
 
 	type mockData struct {
-		Data orderentity.Order
+		Data ordersmodel.Order
 		Err  error
 	}
 
@@ -68,7 +68,7 @@ func TestOrdersHandlerCreateOrder(t *testing.T) {
 				ContentType: "application/json",
 			},
 			MockData: mockData{
-				Data: orderentity.Order{
+				Data: ordersmodel.Order{
 					Number: 5062821234567892,
 					UserId: 1,
 				},
@@ -84,7 +84,7 @@ func TestOrdersHandlerCreateOrder(t *testing.T) {
 				ContentType: "application/json",
 			},
 			MockData: mockData{
-				Data: orderentity.Order{},
+				Data: ordersmodel.Order{},
 				Err:  nil,
 			},
 		},
@@ -97,7 +97,7 @@ func TestOrdersHandlerCreateOrder(t *testing.T) {
 				ContentType: "application/json",
 			},
 			MockData: mockData{
-				Data: orderentity.Order{
+				Data: ordersmodel.Order{
 					Number: 5062821234567892,
 					UserId: 1,
 				},
@@ -113,7 +113,7 @@ func TestOrdersHandlerCreateOrder(t *testing.T) {
 				ContentType: "application/json",
 			},
 			MockData: mockData{
-				Data: orderentity.Order{
+				Data: ordersmodel.Order{
 					Number: 5062821234567892,
 					UserId: 1,
 				},
@@ -129,7 +129,7 @@ func TestOrdersHandlerCreateOrder(t *testing.T) {
 				ContentType: "application/json",
 			},
 			MockData: mockData{
-				Data: orderentity.Order{},
+				Data: ordersmodel.Order{},
 				Err:  nil,
 			},
 		},
