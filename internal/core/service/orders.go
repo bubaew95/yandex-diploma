@@ -5,6 +5,7 @@ import (
 	"github.com/ShiraazMoollatjie/goluhn"
 	"github.com/bubaew95/yandex-diploma/conf"
 	"github.com/bubaew95/yandex-diploma/internal/core/dto/response/ordersdto"
+	"github.com/bubaew95/yandex-diploma/internal/core/entity/orderentity"
 	"github.com/bubaew95/yandex-diploma/internal/core/entity/userentity"
 	apperrors "github.com/bubaew95/yandex-diploma/internal/core/errors"
 	"github.com/bubaew95/yandex-diploma/internal/core/model/ordersmodel"
@@ -68,4 +69,12 @@ func (s OrdersService) OrdersByUserId(ctx context.Context) ([]ordersdto.Orders, 
 	}
 
 	return orders, nil
+}
+
+func (s OrdersService) OrdersWithoutAccrual(ctx context.Context) ([]orderentity.OrderDetails, error) {
+	return s.repo.OrdersWithoutAccrual(ctx)
+}
+
+func (s OrdersService) Worker(ctx context.Context, orderId string) {
+
 }

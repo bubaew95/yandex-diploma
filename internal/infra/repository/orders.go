@@ -103,3 +103,25 @@ func (o OrdersRepository) OrdersByUserId(ctx context.Context, userId int64) ([]o
 
 	return orders, nil
 }
+
+func (o OrdersRepository) OrdersWithoutAccrual(ctx context.Context) ([]orderentity.OrderDetails, error) {
+	sqlQuery := `SELECT number FROM orders WHERE status in ('INVALID', 'PROCESSED') and accrual = 0 ORDER BY id ASC`
+
+	rows, err := o.db.QueryContext(ctx, sqlQuery)
+	if err != nil {
+		return []orderentity.OrderDetails{}, err
+	}
+	defer rows.Close()
+
+	orders := make([]orderentity.OrderDetails, 0)
+	for rows.Next() {
+		var order orderentity.OrderDetails
+		if err = rows.Scan(&order.Number); err != nil {
+			return []orderentity.OrderDetails{}, err
+		}
+
+		orders = append(orders, order)
+	}
+
+	return orders, nil
+}
