@@ -5,8 +5,7 @@ import (
 	"time"
 )
 
-type Worker struct {
-	RetryQueueCh chan orderentity.OrderDetails
-	RetryTimer   time.Time
-	Order        orderentity.OrderDetails
+type RetryOrder struct {
+	Order     orderentity.OrderDetails
+	RetryTime time.Time
 }

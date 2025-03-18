@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"github.com/bubaew95/yandex-diploma/internal/core/dto/response/ordersdto"
+	"github.com/bubaew95/yandex-diploma/internal/core/dto/response/systemdto"
 	"github.com/bubaew95/yandex-diploma/internal/core/entity/orderentity"
 	apperrors "github.com/bubaew95/yandex-diploma/internal/core/errors"
 	"github.com/bubaew95/yandex-diploma/internal/core/model/ordersmodel"
@@ -37,7 +38,7 @@ func (o OrdersRepository) AddOrdersNumber(ctx context.Context, order ordersmodel
 	}
 
 	sqlQuery := `INSERT INTO orders (user_id, number, status) VALUES ($1, $2, $3)`
-	_, err = o.db.ExecContext(ctx, sqlQuery, order.UserId, order.Number, StatusProcessing)
+	_, err = o.db.ExecContext(ctx, sqlQuery, order.UserId, order.Number, StatusNew)
 	if err != nil {
 		return err
 	}
@@ -105,7 +106,7 @@ func (o OrdersRepository) OrdersByUserId(ctx context.Context, userId int64) ([]o
 }
 
 func (o OrdersRepository) OrdersWithoutAccrual(ctx context.Context) ([]orderentity.OrderDetails, error) {
-	sqlQuery := `SELECT number FROM orders WHERE status in ('INVALID', 'PROCESSED') and accrual = 0 ORDER BY id ASC`
+	sqlQuery := `SELECT id, user_id, number FROM orders WHERE status NOT IN ('INVALID', 'PROCESSED') AND accrual = 0 ORDER BY id ASC`
 
 	rows, err := o.db.QueryContext(ctx, sqlQuery)
 	if err != nil {
@@ -116,7 +117,7 @@ func (o OrdersRepository) OrdersWithoutAccrual(ctx context.Context) ([]orderenti
 	orders := make([]orderentity.OrderDetails, 0)
 	for rows.Next() {
 		var order orderentity.OrderDetails
-		if err = rows.Scan(&order.Number); err != nil {
+		if err = rows.Scan(&order.Id, &order.UserId, &order.Number); err != nil {
 			return []orderentity.OrderDetails{}, err
 		}
 
@@ -124,4 +125,30 @@ func (o OrdersRepository) OrdersWithoutAccrual(ctx context.Context) ([]orderenti
 	}
 
 	return orders, nil
+}
+
+func (o OrdersRepository) UpdateOrderById(ctx context.Context, userId int64, cs systemdto.CalculationSystem) error {
+	sqlQuery := `UPDATE orders SET status = $1, accrual = $2 WHERE number = $3`
+
+	tx, err := o.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.ExecContext(ctx, sqlQuery, cs.Status, cs.Accrual, cs.Order)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if cs.Status != "PROCESSED" && cs.Status != "INVALID" {
+		sqlUpdateUserBalance := `UPDATE user_balance SET balance = balance + $1 WHERE user_id = $2`
+		_, err = tx.ExecContext(ctx, sqlUpdateUserBalance, cs.Accrual, userId)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	return tx.Commit()
 }

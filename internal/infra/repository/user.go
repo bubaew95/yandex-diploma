@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"database/sql"
 	"github.com/bubaew95/yandex-diploma/internal/core/dto/response/responsedto"
 	"github.com/bubaew95/yandex-diploma/internal/core/entity/userentity"
 	apperrors "github.com/bubaew95/yandex-diploma/internal/core/errors"
@@ -24,8 +25,14 @@ func NewUserRepository(db *infra.DataBase) *UserRepository {
 func (r UserRepository) AddUser(ctx context.Context, u usermodel.UserRegistration) (userentity.User, error) {
 	sqlString := "INSERT INTO users (login, password) VALUES ($1, $2) RETURNING id"
 
-	row := r.db.QueryRowContext(ctx, sqlString, u.Login, u.Password)
+	tx, err := r.db.Begin()
+	if err != nil {
+		return userentity.User{}, err
+	}
+
+	row := tx.QueryRowContext(ctx, sqlString, u.Login, u.Password)
 	if row.Err() != nil {
+		tx.Rollback()
 		return userentity.User{}, u.CheckLogin(row.Err())
 	}
 
@@ -34,10 +41,36 @@ func (r UserRepository) AddUser(ctx context.Context, u usermodel.UserRegistratio
 		return userentity.User{}, err
 	}
 
+	user, err := addUserBalance(ctx, err, tx, id)
+	if err != nil {
+		tx.Rollback()
+		return user, err
+	}
+
 	return userentity.User{
 		Id:    id,
 		Login: u.Login,
-	}, nil
+	}, tx.Commit()
+}
+
+func addUserBalance(ctx context.Context, err error, tx *sql.Tx, id int64) (userentity.User, error) {
+	sqlQuery := "INSERT INTO user_balance (user_id) VALUES ($1)"
+	_, err = tx.ExecContext(ctx, sqlQuery, id)
+
+	if err != nil {
+		return userentity.User{}, err
+	}
+
+	return userentity.User{}, nil
+}
+
+func (r UserRepository) insertUserBalance(ctx context.Context, userId int64) error {
+	sqlQuery := "INSERT INTO user_balance (user_id) VALUES ($1)"
+	_, err := r.db.ExecContext(ctx, sqlQuery, userId)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (r UserRepository) FindUserByLoginAndPassword(ctx context.Context, u usermodel.UserLogin) (userentity.User, error) {
@@ -98,17 +131,13 @@ func (r UserRepository) BalanceWithdraw(ctx context.Context, ur usermodel.Withdr
 	`
 	_, err = tx.ExecContext(ctx, updateBalanceSql, ur.Amount, ur.UserID)
 	if err != nil {
-		if err := tx.Rollback(); err != nil {
-			return err
-		}
+		tx.Rollback()
 		return apperrors.ErrBalanceUpdate
 	}
 
 	err = r.AddWithdraw(ctx, ur)
 	if err != nil {
-		if err := tx.Rollback(); err != nil {
-			return err
-		}
+		tx.Rollback()
 		return err
 	}
 
@@ -140,7 +169,7 @@ func (r UserRepository) GetWithdrawals(ctx context.Context) ([]responsedto.Withd
 	for rows.Next() {
 		var withdraw responsedto.Withdraw
 		var processedAt time.Time
-		
+
 		err := rows.Scan(&withdraw.OrderNumber, &withdraw.Sum, &processedAt)
 		if err != nil {
 			return nil, err
