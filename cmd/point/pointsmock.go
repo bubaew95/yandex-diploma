@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/bubaew95/yandex-diploma/internal/core/dto/response/systemdto"
 	"github.com/go-chi/chi/v5"
 	"log"
 	"math/rand"
@@ -13,13 +14,7 @@ import (
 	"time"
 )
 
-type Response struct {
-	Order   int64  `json:"order"`
-	Status  string `json:"status"`
-	Accrual int    `json:"accrual"`
-}
-
-const RateLimit = 5
+const RateLimit = 2
 
 var requestCounts = 0
 
@@ -53,7 +48,7 @@ func main() {
 				}(retry)
 			})
 
-			w.Header().Set("Retry-After", string(retry))
+			w.Header().Set("Retry-After", "10")
 			w.WriteHeader(http.StatusTooManyRequests)
 			w.Write([]byte(fmt.Sprintf("No more than %d requests per minute allowed", RateLimit)))
 			return
@@ -61,7 +56,7 @@ func main() {
 
 		time.Sleep(1 * time.Second)
 
-		response := Response{
+		response := systemdto.CalculationSystem{
 			Order:   orderNum,
 			Status:  statuses[rand.Intn(len(statuses))],
 			Accrual: rand.Intn(1000),

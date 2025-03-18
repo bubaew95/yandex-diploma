@@ -1,6 +1,9 @@
 package main
 
 import (
+	"context"
+	"database/sql"
+	"embed"
 	"fmt"
 	"github.com/bubaew95/yandex-diploma/conf"
 	"github.com/bubaew95/yandex-diploma/internal/adapter/handler"
@@ -14,6 +17,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	_ "github.com/jackc/pgx/v5"
 	"github.com/joho/godotenv"
+	"github.com/pressly/goose/v3"
 	"go.uber.org/zap"
 	"log"
 	"os"
@@ -21,10 +25,26 @@ import (
 	"syscall"
 )
 
+var embedMigrations embed.FS
+
 func init() {
 	if err := godotenv.Load("../../.env", "../../.env.local"); err != nil {
 		fmt.Println("No .env file found")
 	}
+}
+
+func initMigrations(db *sql.DB) error {
+	goose.SetBaseFS(embedMigrations)
+
+	if err := goose.SetDialect("pgx"); err != nil {
+		return err
+	}
+
+	if err := goose.Up(db, "migrations"); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func main() {
@@ -38,6 +58,11 @@ func main() {
 		log.Fatalf("Opening database connection: %v", err)
 	}
 
+	//err = initMigrations(DB.DB)
+	//if err != nil {
+	//	log.Fatalf("Initializing database migrations: %v", err)
+	//}
+
 	route := chi.NewRouter()
 	route.Use(localMiddleware.LoggerMiddleware)
 	route.Use(middleware.AllowContentEncoding("gzip"))
@@ -49,6 +74,18 @@ func main() {
 	orderRepository := repository.NewOrdersRepository(DB)
 	orderService := service.NewOrdersService(orderRepository, config)
 	orderHandler := handler.NewOrdersHandler(orderService)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	resultCh := make(chan error, 1)
+	orderService.Worker(ctx, resultCh)
+
+	go func() {
+		for res := range resultCh {
+			fmt.Println("error", res)
+		}
+	}()
 
 	route.Route("/user", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
