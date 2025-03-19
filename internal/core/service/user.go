@@ -90,7 +90,7 @@ func (s UserService) Balance(ctx context.Context) (usermodel.Balance, error) {
 		return usermodel.Balance{}, apperrors.ErrUserNotFound
 	}
 
-	return s.repo.GetUserBalance(ctx, user.Id)
+	return s.repo.GetUserBalance(ctx, user.ID)
 }
 
 func (s UserService) BalanceWithdraw(ctx context.Context, ur userrequest.Withdraw) error {
@@ -115,7 +115,7 @@ func (s UserService) BalanceWithdraw(ctx context.Context, ur userrequest.Withdra
 	userModel := usermodel.Withdraw{
 		OrderNumber: orderNum,
 		Amount:      ur.Sum,
-		UserID:      user.Id,
+		UserID:      user.ID,
 	}
 
 	return s.repo.BalanceWithdraw(ctx, userModel)

@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-const TOKEN_EXP = time.Hour * 3
+const TokenExp = time.Hour * 3
 
 type Claims struct {
 	jwt.RegisteredClaims
@@ -26,7 +26,7 @@ func NewJwtToken(secretKey string) *JwtToken {
 func (j JwtToken) GenerateToken(user userentity.User) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, Claims{
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(TOKEN_EXP)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(TokenExp)),
 		},
 		User: user,
 	})
@@ -41,7 +41,7 @@ func (j JwtToken) GenerateToken(user userentity.User) (string, error) {
 
 func (j JwtToken) EncodeToken(tokenString string) (user userentity.User, err error) {
 	claims := &Claims{}
-	
+
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(t *jwt.Token) (interface{}, error) {
 		return []byte(j.secretKey), nil
 	})

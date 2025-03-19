@@ -116,7 +116,7 @@ func runServer(route *chi.Mux, config *conf.Config) {
 	apiRoute := chi.NewRouter()
 	apiRoute.Mount("/api", route)
 
-	httpServer := server.NewHttpServer(apiRoute, *config)
+	httpServer := server.NewHTTPServer(apiRoute, *config)
 	httpServer.Start()
 	defer httpServer.Stop()
 

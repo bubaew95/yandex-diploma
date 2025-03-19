@@ -13,7 +13,7 @@ import (
 
 const defaultHost = "0.0.0.0"
 
-type HttpServer interface {
+type HTTPServer interface {
 	Start()
 	Stop()
 }
@@ -22,7 +22,7 @@ type httpServer struct {
 	Server *http.Server
 }
 
-func NewHttpServer(r *chi.Mux, c conf.Config) HttpServer {
+func NewHTTPServer(r *chi.Mux, c conf.Config) HTTPServer {
 	return &httpServer{
 		Server: &http.Server{
 			Addr:    c.RunAddress,

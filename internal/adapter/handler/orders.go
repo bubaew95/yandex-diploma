@@ -41,7 +41,7 @@ func (o OrdersHandler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 }
 
 func (o OrdersHandler) UserOrders(w http.ResponseWriter, r *http.Request) {
-	order, err := o.service.OrdersByUserId(r.Context())
+	order, err := o.service.OrdersByUserID(r.Context())
 	if err != nil {
 		HandleErrors(w, err)
 		return

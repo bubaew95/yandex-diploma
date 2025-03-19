@@ -70,7 +70,7 @@ func TestOrdersHandlerCreateOrder(t *testing.T) {
 			MockData: mockData{
 				Data: ordersmodel.Order{
 					Number: 5062821234567892,
-					UserId: 1,
+					UserID: 1,
 				},
 				Err: nil,
 			},
@@ -99,7 +99,7 @@ func TestOrdersHandlerCreateOrder(t *testing.T) {
 			MockData: mockData{
 				Data: ordersmodel.Order{
 					Number: 5062821234567892,
-					UserId: 1,
+					UserID: 1,
 				},
 				Err: apperrors.ErrOrderAddedAnotherUser,
 			},
@@ -115,7 +115,7 @@ func TestOrdersHandlerCreateOrder(t *testing.T) {
 			MockData: mockData{
 				Data: ordersmodel.Order{
 					Number: 5062821234567892,
-					UserId: 1,
+					UserID: 1,
 				},
 				Err: apperrors.ErrOrderAddedThisUser,
 			},
@@ -145,13 +145,14 @@ func TestOrdersHandlerCreateOrder(t *testing.T) {
 
 			jwtToken := token.NewJwtToken(config.SecretKey)
 			newJwtToken, err := jwtToken.GenerateToken(userentity.User{
-				Id:    1,
+				ID:    1,
 				Login: "test",
 			})
 			require.NoError(t, err)
 
 			req := utils.CreateRequest(t, ts, http.MethodPost, "/api/user/orders", tt.Data, newJwtToken)
 			resp := utils.SendUserRequest(t, req)
+			defer resp.Body.Close()
 
 			respBody, err := io.ReadAll(resp.Body)
 			require.NoError(t, err)

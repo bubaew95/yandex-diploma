@@ -41,21 +41,21 @@ func (r UserRepository) AddUser(ctx context.Context, u usermodel.UserRegistratio
 		return userentity.User{}, err
 	}
 
-	user, err := addUserBalance(ctx, err, tx, id)
+	user, err := addUserBalance(ctx, tx, id)
 	if err != nil {
 		tx.Rollback()
 		return user, err
 	}
 
 	return userentity.User{
-		Id:    id,
+		ID:    id,
 		Login: u.Login,
 	}, tx.Commit()
 }
 
-func addUserBalance(ctx context.Context, err error, tx *sql.Tx, id int64) (userentity.User, error) {
+func addUserBalance(ctx context.Context, tx *sql.Tx, id int64) (userentity.User, error) {
 	sqlQuery := "INSERT INTO user_balance (user_id) VALUES ($1)"
-	_, err = tx.ExecContext(ctx, sqlQuery, id)
+	_, err := tx.ExecContext(ctx, sqlQuery, id)
 
 	if err != nil {
 		return userentity.User{}, err
@@ -64,9 +64,9 @@ func addUserBalance(ctx context.Context, err error, tx *sql.Tx, id int64) (usere
 	return userentity.User{}, nil
 }
 
-func (r UserRepository) insertUserBalance(ctx context.Context, userId int64) error {
+func (r UserRepository) insertUserBalance(ctx context.Context, userID int64) error {
 	sqlQuery := "INSERT INTO user_balance (user_id) VALUES ($1)"
-	_, err := r.db.ExecContext(ctx, sqlQuery, userId)
+	_, err := r.db.ExecContext(ctx, sqlQuery, userID)
 	if err != nil {
 		return err
 	}
@@ -82,7 +82,7 @@ func (r UserRepository) FindUserByLoginAndPassword(ctx context.Context, u usermo
 	}
 
 	var user userentity.User
-	if err := row.Scan(&user.Id, &user.Login); err != nil {
+	if err := row.Scan(&user.ID, &user.Login); err != nil {
 		return userentity.User{}, apperrors.ErrIncorrectUser
 	}
 
@@ -125,11 +125,11 @@ func (r UserRepository) BalanceWithdraw(ctx context.Context, ur usermodel.Withdr
 		return err
 	}
 
-	updateBalanceSql := `
+	updateBalanceQuery := `
 		UPDATE user_balance SET balance = (balance - $1), withdrawn = (withdrawn + $1) 
 			WHERE user_id = $2
 	`
-	_, err = tx.ExecContext(ctx, updateBalanceSql, ur.Amount, ur.UserID)
+	_, err = tx.ExecContext(ctx, updateBalanceQuery, ur.Amount, ur.UserID)
 	if err != nil {
 		tx.Rollback()
 		return apperrors.ErrBalanceUpdate
@@ -145,11 +145,11 @@ func (r UserRepository) BalanceWithdraw(ctx context.Context, ur usermodel.Withdr
 }
 
 func (r UserRepository) AddWithdraw(ctx context.Context, ur usermodel.Withdraw) error {
-	insertWithdrawSql := `
+	insertWithdrawQuery := `
 		INSERT INTO withdraws (user_id, order_number, amount) 
 		VALUES ($1, $2, $3)
 	`
-	_, err := r.db.ExecContext(ctx, insertWithdrawSql, ur.UserID, ur.OrderNumber, ur.Amount)
+	_, err := r.db.ExecContext(ctx, insertWithdrawQuery, ur.UserID, ur.OrderNumber, ur.Amount)
 	if err != nil {
 		return err
 	}
@@ -178,6 +178,10 @@ func (r UserRepository) GetWithdrawals(ctx context.Context) ([]responsedto.Withd
 		withdraw.ProcessedAt = processedAt.Format(time.RFC3339)
 
 		withdraws = append(withdraws, withdraw)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
 	}
 
 	return withdraws, nil

@@ -34,11 +34,11 @@ func NewOrdersRepository(db *infra.DataBase) *OrdersRepository {
 func (o OrdersRepository) AddOrdersNumber(ctx context.Context, order ordersmodel.Order) error {
 	findOrder, err := o.GetOrderByNumber(ctx, order.Number)
 	if err == nil {
-		return checkAddedOrder(findOrder, order.UserId)
+		return checkAddedOrder(findOrder, order.UserID)
 	}
 
 	sqlQuery := `INSERT INTO orders (user_id, number, status) VALUES ($1, $2, $3)`
-	_, err = o.db.ExecContext(ctx, sqlQuery, order.UserId, order.Number, StatusNew)
+	_, err = o.db.ExecContext(ctx, sqlQuery, order.UserID, order.Number, StatusNew)
 	if err != nil {
 		return err
 	}
@@ -46,8 +46,8 @@ func (o OrdersRepository) AddOrdersNumber(ctx context.Context, order ordersmodel
 	return nil
 }
 
-func checkAddedOrder(order orderentity.OrderDetails, userId int64) error {
-	if order.UserId != userId {
+func checkAddedOrder(order orderentity.OrderDetails, userID int64) error {
+	if order.UserID != userID {
 		return apperrors.ErrOrderAddedAnotherUser
 	}
 
@@ -63,7 +63,7 @@ func (o OrdersRepository) GetOrderByNumber(ctx context.Context, number int64) (o
 	}
 
 	var order orderentity.OrderDetails
-	err := row.Scan(&order.Id, &order.Status, &order.UserId, &order.CreatedAt)
+	err := row.Scan(&order.ID, &order.Status, &order.UserID, &order.CreatedAt)
 	if err != nil {
 		return orderentity.OrderDetails{}, apperrors.ErrOrderNotFound
 	}
@@ -71,9 +71,9 @@ func (o OrdersRepository) GetOrderByNumber(ctx context.Context, number int64) (o
 	return order, nil
 }
 
-func (o OrdersRepository) OrdersByUserId(ctx context.Context, userId int64) ([]ordersdto.Orders, error) {
+func (o OrdersRepository) OrdersByUserID(ctx context.Context, userID int64) ([]ordersdto.Orders, error) {
 	sqlQuery := `SELECT number, status, accrual, uploaded_at FROM orders WHERE user_id = $1 ORDER BY uploaded_at DESC`
-	rows, err := o.db.QueryContext(ctx, sqlQuery, userId)
+	rows, err := o.db.QueryContext(ctx, sqlQuery, userID)
 	if err != nil {
 		return []ordersdto.Orders{}, err
 	}
@@ -117,17 +117,21 @@ func (o OrdersRepository) OrdersWithoutAccrual(ctx context.Context) ([]orderenti
 	orders := make([]orderentity.OrderDetails, 0)
 	for rows.Next() {
 		var order orderentity.OrderDetails
-		if err = rows.Scan(&order.Id, &order.UserId, &order.Number); err != nil {
+		if err = rows.Scan(&order.ID, &order.UserID, &order.Number); err != nil {
 			return []orderentity.OrderDetails{}, err
 		}
 
 		orders = append(orders, order)
 	}
 
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
 	return orders, nil
 }
 
-func (o OrdersRepository) UpdateOrderById(ctx context.Context, userId int64, cs systemdto.CalculationSystem) error {
+func (o OrdersRepository) UpdateOrderByID(ctx context.Context, userID int64, cs systemdto.CalculationSystem) error {
 	sqlQuery := `UPDATE orders SET status = $1, accrual = $2 WHERE number = $3`
 
 	tx, err := o.db.Begin()
@@ -143,7 +147,7 @@ func (o OrdersRepository) UpdateOrderById(ctx context.Context, userId int64, cs 
 
 	if cs.Status != "PROCESSED" && cs.Status != "INVALID" {
 		sqlUpdateUserBalance := `UPDATE user_balance SET balance = balance + $1 WHERE user_id = $2`
-		_, err = tx.ExecContext(ctx, sqlUpdateUserBalance, cs.Accrual, userId)
+		_, err = tx.ExecContext(ctx, sqlUpdateUserBalance, cs.Accrual, userID)
 		if err != nil {
 			tx.Rollback()
 			return err

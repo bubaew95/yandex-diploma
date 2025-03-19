@@ -58,20 +58,20 @@ func (s OrdersService) AddOrdersNumber(ctx context.Context, number string) error
 	}
 
 	userOrder := ordersmodel.Order{
-		UserId: user.Id,
+		UserID: user.ID,
 		Number: orderNum,
 	}
 
 	return s.repo.AddOrdersNumber(ctx, userOrder)
 }
 
-func (s OrdersService) OrdersByUserId(ctx context.Context) ([]ordersdto.Orders, error) {
+func (s OrdersService) OrdersByUserID(ctx context.Context) ([]ordersdto.Orders, error) {
 	user, ok := ctx.Value("user").(userentity.User)
 	if !ok {
 		return nil, apperrors.ErrUserNotFound
 	}
 
-	orders, err := s.repo.OrdersByUserId(ctx, user.Id)
+	orders, err := s.repo.OrdersByUserID(ctx, user.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -83,8 +83,8 @@ func (s OrdersService) OrdersWithoutAccrual(ctx context.Context) ([]orderentity.
 	return s.repo.OrdersWithoutAccrual(ctx)
 }
 
-func (s OrdersService) UpdateOrderById(ctx context.Context, userId int64, cs systemdto.CalculationSystem) error {
-	return s.repo.UpdateOrderById(ctx, userId, cs)
+func (s OrdersService) UpdateOrderByID(ctx context.Context, userID int64, cs systemdto.CalculationSystem) error {
+	return s.repo.UpdateOrderByID(ctx, userID, cs)
 }
 
 func (s OrdersService) GetPointByNumber(ctx context.Context, number int64) (calcsystementity.CalculationSystem, error) {
@@ -138,7 +138,7 @@ func (s OrdersService) processOrder(
 		return
 	}
 
-	err = s.UpdateOrderById(ctx, order.UserId, *res.CalculationSystem)
+	err = s.UpdateOrderByID(ctx, order.UserID, *res.CalculationSystem)
 	if err != nil {
 		resultCh <- err
 	}

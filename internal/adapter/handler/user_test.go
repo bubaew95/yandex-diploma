@@ -67,7 +67,7 @@ func TestUserHandlerSignUp(t *testing.T) {
 			},
 			MockData: mockData{
 				Data: userentity.User{
-					Id:    1,
+					ID:    1,
 					Login: "test",
 				},
 				Err: nil,
@@ -130,6 +130,7 @@ func TestUserHandlerSignUp(t *testing.T) {
 
 			req := utils.CreateRequest(t, ts, http.MethodPost, "/api/user/register", tt.Data, jwtToken)
 			resp := utils.SendUserRequest(t, req)
+			defer resp.Body.Close()
 
 			respBody, err := io.ReadAll(resp.Body)
 			require.NoError(t, err)
@@ -234,6 +235,8 @@ func TestUserHandlerLogin(t *testing.T) {
 
 			req := utils.CreateRequest(t, ts, http.MethodPost, "/api/user/login", tt.Data, jwtToken)
 			resp := utils.SendUserRequest(t, req)
+
+			defer resp.Body.Close()
 
 			respBody, err := io.ReadAll(resp.Body)
 			require.NoError(t, err)

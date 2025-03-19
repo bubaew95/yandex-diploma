@@ -6,5 +6,5 @@ type CalculationSystem struct {
 	*systemdto.CalculationSystem
 	StatusCode int
 	Retry      string
-	UserId     int64
+	UserID     int64
 }
