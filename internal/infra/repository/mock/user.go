@@ -10,6 +10,7 @@ import (
 
 	authdto "github.com/bubaew95/yandex-diploma/internal/core/dto/request/authdto"
 	userrequest "github.com/bubaew95/yandex-diploma/internal/core/dto/request/userrequest"
+	responsedto "github.com/bubaew95/yandex-diploma/internal/core/dto/response/responsedto"
 	userentity "github.com/bubaew95/yandex-diploma/internal/core/entity/userentity"
 	usermodel "github.com/bubaew95/yandex-diploma/internal/core/model/usermodel"
 	gomock "github.com/golang/mock/gomock"
@@ -80,6 +81,21 @@ func (m *MockUserService) BalanceWithdraw(ctx context.Context, ur userrequest.Wi
 func (mr *MockUserServiceMockRecorder) BalanceWithdraw(ctx, ur interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BalanceWithdraw", reflect.TypeOf((*MockUserService)(nil).BalanceWithdraw), ctx, ur)
+}
+
+// GetWithdrawals mocks base method.
+func (m *MockUserService) GetWithdrawals(ctx context.Context) ([]responsedto.Withdraw, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetWithdrawals", ctx)
+	ret0, _ := ret[0].([]responsedto.Withdraw)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetWithdrawals indicates an expected call of GetWithdrawals.
+func (mr *MockUserServiceMockRecorder) GetWithdrawals(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWithdrawals", reflect.TypeOf((*MockUserService)(nil).GetWithdrawals), ctx)
 }
 
 // Registration mocks base method.
@@ -177,4 +193,19 @@ func (m *MockUserRepository) GetUserBalance(ctx context.Context, userID int64) (
 func (mr *MockUserRepositoryMockRecorder) GetUserBalance(ctx, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserBalance", reflect.TypeOf((*MockUserRepository)(nil).GetUserBalance), ctx, userID)
+}
+
+// GetWithdrawals mocks base method.
+func (m *MockUserRepository) GetWithdrawals(ctx context.Context) ([]responsedto.Withdraw, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetWithdrawals", ctx)
+	ret0, _ := ret[0].([]responsedto.Withdraw)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetWithdrawals indicates an expected call of GetWithdrawals.
+func (mr *MockUserRepositoryMockRecorder) GetWithdrawals(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWithdrawals", reflect.TypeOf((*MockUserRepository)(nil).GetWithdrawals), ctx)
 }
