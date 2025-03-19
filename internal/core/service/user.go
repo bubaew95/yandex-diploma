@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/ShiraazMoollatjie/goluhn"
 	"github.com/bubaew95/yandex-diploma/conf"
+	"github.com/bubaew95/yandex-diploma/internal/core/constants"
 	"github.com/bubaew95/yandex-diploma/internal/core/dto/request/authdto"
 	"github.com/bubaew95/yandex-diploma/internal/core/dto/request/userrequest"
 	"github.com/bubaew95/yandex-diploma/internal/core/dto/response/responsedto"
@@ -85,7 +86,7 @@ func (s UserService) Authorization(ctx context.Context, req authdto.SignInReques
 }
 
 func (s UserService) Balance(ctx context.Context) (usermodel.Balance, error) {
-	user, ok := ctx.Value("user").(userentity.User)
+	user, ok := ctx.Value(constants.UserKey).(userentity.User)
 	if !ok {
 		return usermodel.Balance{}, apperrors.ErrUserNotFound
 	}
@@ -94,7 +95,7 @@ func (s UserService) Balance(ctx context.Context) (usermodel.Balance, error) {
 }
 
 func (s UserService) BalanceWithdraw(ctx context.Context, ur userrequest.Withdraw) error {
-	user, ok := ctx.Value("user").(userentity.User)
+	user, ok := ctx.Value(constants.UserKey).(userentity.User)
 	if !ok {
 		return apperrors.ErrUserNotFound
 	}

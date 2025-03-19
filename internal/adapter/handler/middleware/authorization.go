@@ -3,6 +3,7 @@ package middleware
 import (
 	"context"
 	"github.com/bubaew95/yandex-diploma/conf"
+	"github.com/bubaew95/yandex-diploma/internal/core/constants"
 	"github.com/bubaew95/yandex-diploma/internal/core/dto/response"
 	apperrors "github.com/bubaew95/yandex-diploma/internal/core/errors"
 	"github.com/bubaew95/yandex-diploma/internal/utils"
@@ -50,7 +51,7 @@ func AuthMiddleware(cfg *conf.Config) func(next http.Handler) http.Handler {
 				return
 			}
 
-			ctx := context.WithValue(r.Context(), "user", user)
+			ctx := context.WithValue(r.Context(), constants.UserKey, user)
 			request := r.WithContext(ctx)
 
 			next.ServeHTTP(w, request)
