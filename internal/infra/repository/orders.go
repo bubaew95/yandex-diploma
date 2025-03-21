@@ -145,13 +145,11 @@ func (o OrdersRepository) UpdateOrderByID(ctx context.Context, userID int64, cs 
 		return err
 	}
 
-	if cs.Status != "PROCESSED" && cs.Status != "INVALID" {
-		sqlUpdateUserBalance := `UPDATE user_balance SET balance = balance + $1 WHERE user_id = $2`
-		_, err = tx.ExecContext(ctx, sqlUpdateUserBalance, cs.Accrual, userID)
-		if err != nil {
-			tx.Rollback()
-			return err
-		}
+	sqlUpdateUserBalance := `UPDATE user_balance SET balance = balance + $1 WHERE user_id = $2`
+	_, err = tx.ExecContext(ctx, sqlUpdateUserBalance, cs.Accrual, userID)
+	if err != nil {
+		tx.Rollback()
+		return err
 	}
 
 	return tx.Commit()
