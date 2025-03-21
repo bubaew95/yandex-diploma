@@ -34,17 +34,7 @@ func init() {
 }
 
 func initMigrations(db *sql.DB) error {
-	goose.SetBaseFS(embedMigrations)
-
-	if err := goose.SetDialect("pgx"); err != nil {
-		return err
-	}
-
-	if err := goose.Up(db, "migrations"); err != nil {
-		return err
-	}
-
-	return nil
+	return goose.Up(db, "../../migrations")
 }
 
 func main() {
@@ -58,10 +48,10 @@ func main() {
 		log.Fatalf("Opening database connection: %v", err)
 	}
 
-	//err = initMigrations(DB.DB)
-	//if err != nil {
-	//	log.Fatalf("Initializing database migrations: %v", err)
-	//}
+	err = initMigrations(DB.DB)
+	if err != nil {
+		log.Fatalf("Initializing database migrations: %v", err)
+	}
 
 	route := chi.NewRouter()
 	route.Use(localMiddleware.LoggerMiddleware)
