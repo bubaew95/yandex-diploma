@@ -69,7 +69,7 @@ func TestOrdersHandlerCreateOrder(t *testing.T) {
 			},
 			MockData: mockData{
 				Data: ordersmodel.Order{
-					Number: 5062821234567892,
+					Number: "5062821234567892",
 					UserID: 1,
 				},
 				Err: nil,
@@ -98,7 +98,7 @@ func TestOrdersHandlerCreateOrder(t *testing.T) {
 			},
 			MockData: mockData{
 				Data: ordersmodel.Order{
-					Number: 5062821234567892,
+					Number: "5062821234567892",
 					UserID: 1,
 				},
 				Err: apperrors.ErrOrderAddedAnotherUser,
@@ -114,7 +114,7 @@ func TestOrdersHandlerCreateOrder(t *testing.T) {
 			},
 			MockData: mockData{
 				Data: ordersmodel.Order{
-					Number: 5062821234567892,
+					Number: "5062821234567892",
 					UserID: 1,
 				},
 				Err: apperrors.ErrOrderAddedThisUser,
