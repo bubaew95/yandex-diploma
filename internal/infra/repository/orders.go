@@ -54,7 +54,7 @@ func checkAddedOrder(order orderentity.OrderDetails, userID int64) error {
 	return apperrors.ErrOrderAddedThisUser
 }
 
-func (o OrdersRepository) GetOrderByNumber(ctx context.Context, number int64) (orderentity.OrderDetails, error) {
+func (o OrdersRepository) GetOrderByNumber(ctx context.Context, number string) (orderentity.OrderDetails, error) {
 	sqlQuery := `SELECT id, status, user_id, uploaded_at FROM orders WHERE number = $1`
 	row := o.db.QueryRowContext(ctx, sqlQuery, number)
 

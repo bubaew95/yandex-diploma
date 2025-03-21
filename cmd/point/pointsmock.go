@@ -9,7 +9,6 @@ import (
 	"math/rand"
 	"net/http"
 	"regexp"
-	"strconv"
 	"sync"
 	"time"
 )
@@ -30,11 +29,6 @@ func main() {
 
 		reg := regexp.MustCompile("[^0-9]+")
 		num := reg.ReplaceAllString(number, "")
-
-		orderNum, err := strconv.ParseInt(num, 10, 64)
-		if err != nil {
-			log.Println(err)
-		}
 
 		if requestCounts > RateLimit {
 			retry := RateLimit * time.Second
@@ -57,7 +51,7 @@ func main() {
 		time.Sleep(1 * time.Second)
 
 		response := systemdto.CalculationSystem{
-			Order:   orderNum,
+			Order:   num,
 			Status:  statuses[rand.Intn(len(statuses))],
 			Accrual: rand.Intn(1000),
 		}

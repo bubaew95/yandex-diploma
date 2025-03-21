@@ -53,14 +53,9 @@ func (s OrdersService) AddOrdersNumber(ctx context.Context, number string) error
 		return apperrors.ErrInvalidOrderNumber
 	}
 
-	orderNum, err := strconv.ParseInt(num, 10, 64)
-	if err != nil {
-		return err
-	}
-
 	userOrder := ordersmodel.Order{
 		UserID: user.ID,
-		Number: orderNum,
+		Number: num,
 	}
 
 	return s.repo.AddOrdersNumber(ctx, userOrder)
@@ -88,8 +83,8 @@ func (s OrdersService) UpdateOrderByID(ctx context.Context, userID int64, cs sys
 	return s.repo.UpdateOrderByID(ctx, userID, cs)
 }
 
-func (s OrdersService) GetPointByNumber(ctx context.Context, number int64) (calcsystementity.CalculationSystem, error) {
-	calcSystemURL := fmt.Sprintf("%s/api/orders/%d", s.config.AccrualAddress, number)
+func (s OrdersService) GetPointByNumber(ctx context.Context, number string) (calcsystementity.CalculationSystem, error) {
+	calcSystemURL := fmt.Sprintf("%s/api/orders/%s", s.config.AccrualAddress, number)
 
 	var calcResponse systemdto.CalculationSystem
 
@@ -121,7 +116,6 @@ func (s OrdersService) processOrder(
 		resultCh <- err
 	}
 
-	fmt.Printf("%+v\n", res)
 	if res.StatusCode == http.StatusTooManyRequests {
 		retrySeconds, err := strconv.ParseInt(res.Retry, 10, 64)
 		if err != nil {
@@ -132,9 +126,9 @@ func (s OrdersService) processOrder(
 
 		select {
 		case retryQueueCh <- calcsystementity.RetryOrder{Order: order, RetryTime: retryAfter}:
-			logger.Log.Debug("Заказ получил 429, повтор через сек", zap.Int64("number", order.Number), zap.Int64("time", retrySeconds))
+			logger.Log.Debug("Заказ получил 429, повтор через сек", zap.String("number", order.Number), zap.Int64("time", retrySeconds))
 		default:
-			logger.Log.Debug("Очередь переполнена! Заказ пропущен", zap.Int64("number", order.Number))
+			logger.Log.Debug("Очередь переполнена! Заказ пропущен", zap.String("number", order.Number))
 		}
 		return
 	}
