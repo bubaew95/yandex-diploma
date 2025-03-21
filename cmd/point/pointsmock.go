@@ -53,7 +53,7 @@ func main() {
 		response := systemdto.CalculationSystem{
 			Order:   num,
 			Status:  statuses[rand.Intn(len(statuses))],
-			Accrual: 1000,
+			Accrual: 729.98,
 		}
 
 		requestCounts++

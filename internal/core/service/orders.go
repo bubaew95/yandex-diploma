@@ -20,6 +20,7 @@ import (
 	"net/http"
 	"regexp"
 	"strconv"
+	"sync"
 	"time"
 )
 
@@ -144,6 +145,8 @@ func (s OrdersService) processOrder(
 func (s OrdersService) Worker(ctx context.Context, resultCh chan error) {
 	orderCh := make(chan orderentity.OrderDetails)
 	retryQueueCh := make(chan calcsystementity.RetryOrder, 100)
+	processionOrders := make(map[string]struct{})
+	mu := sync.Mutex{}
 
 	go func() {
 		ticker := time.NewTicker(1 * time.Second)
@@ -158,6 +161,15 @@ func (s OrdersService) Worker(ctx context.Context, resultCh chan error) {
 					continue
 				}
 				for _, order := range orders {
+					mu.Lock()
+					if _, ok := processionOrders[order.Number]; ok {
+						mu.Unlock()
+						continue
+					}
+					processionOrders[order.Number] = struct{}{}
+					mu.Unlock()
+					fmt.Println("Добавлен новый заказ", order)
+
 					orderCh <- order
 				}
 
@@ -172,11 +184,19 @@ func (s OrdersService) Worker(ctx context.Context, resultCh chan error) {
 			select {
 			case order := <-orderCh:
 				s.processOrder(ctx, order, resultCh, retryQueueCh)
+				fmt.Println("order := <-orderCh")
+				mu.Lock()
+				delete(processionOrders, order.Number)
+				mu.Unlock()
 
 			case retryOrder := <-retryQueueCh:
+				fmt.Println("retryOrder := <-retryQueueCh")
 				time.Sleep(time.Until(retryOrder.RetryTime))
 				s.processOrder(ctx, retryOrder.Order, resultCh, retryQueueCh)
 
+				mu.Lock()
+				delete(processionOrders, retryOrder.Order.Number)
+				mu.Unlock()
 			case <-ctx.Done():
 				return
 			}

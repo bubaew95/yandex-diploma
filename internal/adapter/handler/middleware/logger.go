@@ -37,7 +37,7 @@ func LoggerMiddleware(h http.Handler) http.Handler {
 		}
 
 		h.ServeHTTP(&lw, r)
-		
+
 		duration := time.Since(start)
 
 		logger.Log.Info("HTTP request&response",
