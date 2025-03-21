@@ -25,26 +25,16 @@ import (
 )
 
 func init() {
-	if err := godotenv.Load("../../.env", "../../.env.local"); err != nil {
+	if err := godotenv.Load("./.env", "./.env.local"); err != nil {
 		fmt.Println("No .env file found")
 	}
 }
 
 func initMigrations(db *sql.DB) error {
-	return goose.Up(db, "../../migrations")
+	return goose.Up(db, "./migrations")
 }
 
 func main() {
-
-	entries, err := os.ReadDir("./")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for _, e := range entries {
-		fmt.Println("DIR ", e.Name())
-	}
-
 	config := conf.NewConfig()
 	if err := logger.Load(); err != nil {
 		log.Fatalf("loading config: %v", err)
