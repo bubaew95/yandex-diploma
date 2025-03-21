@@ -91,12 +91,13 @@ func (s OrdersService) GetPointByNumber(ctx context.Context, number string) (cal
 	client := resty.New()
 	res, err := client.R().
 		SetContext(ctx).
+		SetResult(&calcResponse).
 		Get(calcSystemURL)
 	if err != nil {
 		return calcsystementity.CalculationSystem{}, err
 	}
 
-	logger.Log.Info("Система рассчета", zap.Any("calcResponse", res))
+	logger.Log.Info("Система рассчета", zap.Any("calcResponse", calcResponse))
 
 	retry := res.Header().Get("Retry-After")
 	return calcsystementity.CalculationSystem{
