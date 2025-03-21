@@ -115,6 +115,10 @@ func main() {
 		users = append(users, user)
 	}
 
+	if res.Err() != nil {
+		log.Fatal(err)
+	}
+
 	logger.Log.Info("User balance ", zap.Any("users", users))
 }
 
