@@ -9,6 +9,7 @@ import (
 	localMiddleware "github.com/bubaew95/yandex-diploma/internal/adapter/handler/middleware"
 	"github.com/bubaew95/yandex-diploma/internal/adapter/logger"
 	"github.com/bubaew95/yandex-diploma/internal/adapter/server"
+	"github.com/bubaew95/yandex-diploma/internal/core/model/usermodel"
 	"github.com/bubaew95/yandex-diploma/internal/core/service"
 	"github.com/bubaew95/yandex-diploma/internal/infra"
 	"github.com/bubaew95/yandex-diploma/internal/infra/repository"
@@ -97,6 +98,24 @@ func main() {
 	})
 
 	runServer(route, config)
+
+	res, err := DB.Query("SELECT balance FROM  user_balance")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var users []usermodel.Withdraw
+	for res.Next() {
+		var user usermodel.Withdraw
+
+		if err := res.Scan(&user.Amount); err != nil {
+			log.Fatal(err)
+		}
+
+		users = append(users, user)
+	}
+
+	logger.Log.Info("User balance ", zap.Any("users", users))
 }
 
 func runServer(route *chi.Mux, config *conf.Config) {
