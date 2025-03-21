@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"database/sql"
-	"embed"
 	"fmt"
 	"github.com/bubaew95/yandex-diploma/conf"
 	"github.com/bubaew95/yandex-diploma/internal/adapter/handler"
@@ -25,8 +24,6 @@ import (
 	"syscall"
 )
 
-var embedMigrations embed.FS
-
 func init() {
 	if err := godotenv.Load("../../.env", "../../.env.local"); err != nil {
 		fmt.Println("No .env file found")
@@ -38,6 +35,16 @@ func initMigrations(db *sql.DB) error {
 }
 
 func main() {
+
+	entries, err := os.ReadDir("./")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, e := range entries {
+		fmt.Println("DIR ", e.Name())
+	}
+
 	config := conf.NewConfig()
 	if err := logger.Load(); err != nil {
 		log.Fatalf("loading config: %v", err)
