@@ -97,6 +97,8 @@ func (s OrdersService) GetPointByNumber(ctx context.Context, number string) (cal
 		return calcsystementity.CalculationSystem{}, err
 	}
 
+	logger.Log.Debug("Система рассчета", zap.Any("calcResponse", calcResponse))
+
 	retry := res.Header().Get("Retry-After")
 	return calcsystementity.CalculationSystem{
 		CalculationSystem: &calcResponse,
