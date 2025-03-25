@@ -5,13 +5,12 @@ import (
 	"fmt"
 	"github.com/ShiraazMoollatjie/goluhn"
 	"github.com/bubaew95/yandex-diploma/conf"
+	"github.com/bubaew95/yandex-diploma/internal/adapter/handler/middleware"
 	"github.com/bubaew95/yandex-diploma/internal/adapter/logger"
-	"github.com/bubaew95/yandex-diploma/internal/core/constants"
 	"github.com/bubaew95/yandex-diploma/internal/core/dto/response/ordersdto"
 	"github.com/bubaew95/yandex-diploma/internal/core/dto/response/systemdto"
 	"github.com/bubaew95/yandex-diploma/internal/core/entity/calcsystementity"
 	"github.com/bubaew95/yandex-diploma/internal/core/entity/orderentity"
-	"github.com/bubaew95/yandex-diploma/internal/core/entity/userentity"
 	apperrors "github.com/bubaew95/yandex-diploma/internal/core/errors"
 	"github.com/bubaew95/yandex-diploma/internal/core/model/ordersmodel"
 	"github.com/bubaew95/yandex-diploma/internal/core/ports"
@@ -41,7 +40,7 @@ func (s OrdersService) AddOrdersNumber(ctx context.Context, number string) error
 		return apperrors.ErrIncorrectRequest
 	}
 
-	user, ok := ctx.Value(constants.UserKey).(userentity.User)
+	user, ok := middleware.GetContextUser(ctx)
 	if !ok {
 		return apperrors.ErrUserNotFound
 	}
@@ -63,7 +62,7 @@ func (s OrdersService) AddOrdersNumber(ctx context.Context, number string) error
 }
 
 func (s OrdersService) OrdersByUserID(ctx context.Context) ([]ordersdto.Orders, error) {
-	user, ok := ctx.Value(constants.UserKey).(userentity.User)
+	user, ok := middleware.GetContextUser(ctx)
 	if !ok {
 		return nil, apperrors.ErrUserNotFound
 	}

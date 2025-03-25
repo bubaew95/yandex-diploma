@@ -3,14 +3,24 @@ package middleware
 import (
 	"context"
 	"github.com/bubaew95/yandex-diploma/conf"
-	"github.com/bubaew95/yandex-diploma/internal/core/constants"
 	"github.com/bubaew95/yandex-diploma/internal/core/dto/response"
+	"github.com/bubaew95/yandex-diploma/internal/core/entity/userentity"
 	apperrors "github.com/bubaew95/yandex-diploma/internal/core/errors"
 	"github.com/bubaew95/yandex-diploma/internal/utils"
 	"github.com/bubaew95/yandex-diploma/pkg/token"
 	"net/http"
 	"strings"
 )
+
+type ContextKey string
+
+const UserKey ContextKey = "user"
+
+func GetContextUser(ctx context.Context) (userentity.User, bool) {
+	user, ok := ctx.Value(UserKey).(userentity.User)
+
+	return user, ok
+}
 
 func getToken(r *http.Request) (string, error) {
 	authHeader := r.Header.Get("Authorization")
@@ -51,7 +61,7 @@ func AuthMiddleware(cfg *conf.Config) func(next http.Handler) http.Handler {
 				return
 			}
 
-			ctx := context.WithValue(r.Context(), constants.UserKey, user)
+			ctx := context.WithValue(r.Context(), UserKey, user)
 			request := r.WithContext(ctx)
 
 			next.ServeHTTP(w, request)
