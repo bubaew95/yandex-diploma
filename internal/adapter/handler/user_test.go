@@ -197,9 +197,9 @@ func TestUserHandlerLogin(t *testing.T) {
 			Name: "User not found",
 			Data: `{"login": "test", "password": "test"}`,
 			Want: Want{
-				StatusCode:  http.StatusUnauthorized,
+				StatusCode:  http.StatusNotFound,
 				ContentType: "application/json",
-				Response:    `{"status":"failed","message":"Incorrect login or password"}`,
+				Response:    `{"status":"failed","message":"incorrect login or password"}`,
 			},
 			MockData: mockData{
 				Data: userentity.User{},

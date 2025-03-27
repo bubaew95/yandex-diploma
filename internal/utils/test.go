@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -25,7 +26,12 @@ func BaseTestData(t *testing.T) (*chi.Mux, *conf.Config, *gomock.Controller) {
 }
 
 func CreateRequest(t *testing.T, ts *httptest.Server, method string, url string, data string, token string) *http.Request {
-	req, err := http.NewRequest(method, ts.URL+url, bytes.NewBufferString(data))
+	var body io.Reader
+	if data != "" {
+		body = bytes.NewBufferString(data)
+	}
+
+	req, err := http.NewRequest(method, ts.URL+url, body)
 	require.NoError(t, err)
 
 	if token != "" {

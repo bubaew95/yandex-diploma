@@ -1,8 +1,10 @@
 package handler
 
 import (
+	"encoding/json"
 	"github.com/bubaew95/yandex-diploma/conf"
 	"github.com/bubaew95/yandex-diploma/internal/adapter/handler/middleware"
+	"github.com/bubaew95/yandex-diploma/internal/core/dto/response/ordersdto"
 	"github.com/bubaew95/yandex-diploma/internal/core/entity/userentity"
 	apperrors "github.com/bubaew95/yandex-diploma/internal/core/errors"
 	"github.com/bubaew95/yandex-diploma/internal/core/model/ordersmodel"
@@ -160,6 +162,70 @@ func TestOrdersHandlerCreateOrder(t *testing.T) {
 			assert.JSONEq(t, tt.Want.Result, string(respBody))
 			assert.Equal(t, tt.Want.StatusCode, resp.StatusCode)
 			assert.Equal(t, tt.Want.ContentType, resp.Header.Get("Content-Type"))
+		})
+	}
+}
+
+func TestUserOrdersHandler(t *testing.T) {
+	t.Parallel()
+
+	type want struct {
+		StatusCode  int
+		Result      []ordersdto.Orders
+		ContentType string
+	}
+
+	tests := []struct {
+		Name string
+		Want want
+	}{
+		{
+			Name: "Simple orders",
+			Want: want{
+				StatusCode:  http.StatusOK,
+				ContentType: "application/json",
+				Result: []ordersdto.Orders{
+					{
+						Number:     "12434634sdf",
+						Status:     "INVALID",
+						Accrual:    0,
+						UploadedAt: "2025-03-21T23:12:22+03:00",
+					},
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.Name, func(t *testing.T) {
+			config, orderRepositoryMock, ts := setupOrderTestServer(t)
+
+			orderRepositoryMock.
+				EXPECT().
+				OrdersByUserID(gomock.Any(), gomock.Any()).
+				Return(tt.Want.Result, nil)
+
+			jwtToken := token.NewJwtToken(config.SecretKey)
+			newJwtToken, err := jwtToken.GenerateToken(userentity.User{
+				ID:    1,
+				Login: "test",
+			})
+			require.NoError(t, err)
+
+			req := utils.CreateRequest(t, ts, http.MethodGet, "/api/user/orders", "", newJwtToken)
+			resp := utils.SendUserRequest(t, req)
+			defer resp.Body.Close()
+
+			respBody, err := io.ReadAll(resp.Body)
+			require.NoError(t, err)
+
+			assert.Equal(t, tt.Want.StatusCode, resp.StatusCode)
+			assert.Equal(t, tt.Want.ContentType, resp.Header.Get("Content-Type"))
+
+			data, err := json.Marshal(tt.Want.Result)
+			require.NoError(t, err)
+
+			assert.JSONEq(t, string(data), string(respBody))
 		})
 	}
 }

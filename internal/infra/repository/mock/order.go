@@ -52,7 +52,7 @@ func (mr *MockOrderServiceMockRecorder) AddOrdersNumber(ctx, number interface{})
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddOrdersNumber", reflect.TypeOf((*MockOrderService)(nil).AddOrdersNumber), ctx, number)
 }
 
-// OrdersByUserId mocks base method.
+// OrdersByUserID mocks base method.
 func (m *MockOrderService) OrdersByUserID(ctx context.Context) ([]ordersdto.Orders, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "OrdersByUserID", ctx)
@@ -61,8 +61,8 @@ func (m *MockOrderService) OrdersByUserID(ctx context.Context) ([]ordersdto.Orde
 	return ret0, ret1
 }
 
-// OrdersByUserId indicates an expected call of OrdersByUserId.
-func (mr *MockOrderServiceMockRecorder) OrdersByUserId(ctx interface{}) *gomock.Call {
+// OrdersByUserID indicates an expected call of OrdersByUserID.
+func (mr *MockOrderServiceMockRecorder) OrdersByUserID(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OrdersByUserID", reflect.TypeOf((*MockOrderService)(nil).OrdersByUserID), ctx)
 }
@@ -82,18 +82,18 @@ func (mr *MockOrderServiceMockRecorder) OrdersWithoutAccrual(ctx interface{}) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OrdersWithoutAccrual", reflect.TypeOf((*MockOrderService)(nil).OrdersWithoutAccrual), ctx)
 }
 
-// UpdateOrderById mocks base method.
-func (m *MockOrderService) UpdateOrderByID(ctx context.Context, userId int64, cs systemdto.CalculationSystem) error {
+// UpdateOrderByID mocks base method.
+func (m *MockOrderService) UpdateOrderByID(ctx context.Context, userID int64, cs systemdto.CalculationSystem) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateOrderByID", ctx, userId, cs)
+	ret := m.ctrl.Call(m, "UpdateOrderByID", ctx, userID, cs)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// UpdateOrderById indicates an expected call of UpdateOrderById.
-func (mr *MockOrderServiceMockRecorder) UpdateOrderById(ctx, userId, cs interface{}) *gomock.Call {
+// UpdateOrderByID indicates an expected call of UpdateOrderByID.
+func (mr *MockOrderServiceMockRecorder) UpdateOrderByID(ctx, userID, cs interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateOrderByID", reflect.TypeOf((*MockOrderService)(nil).UpdateOrderByID), ctx, userId, cs)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateOrderByID", reflect.TypeOf((*MockOrderService)(nil).UpdateOrderByID), ctx, userID, cs)
 }
 
 // MockOrderRepository is a mock of OrderRepository interface.
@@ -134,18 +134,18 @@ func (mr *MockOrderRepositoryMockRecorder) AddOrdersNumber(ctx, order interface{
 }
 
 // OrdersByUserID mocks base method.
-func (m *MockOrderRepository) OrdersByUserID(ctx context.Context, userId int64) ([]ordersdto.Orders, error) {
+func (m *MockOrderRepository) OrdersByUserID(ctx context.Context, userID int64) ([]ordersdto.Orders, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "OrdersByUserID", ctx, userId)
+	ret := m.ctrl.Call(m, "OrdersByUserID", ctx, userID)
 	ret0, _ := ret[0].([]ordersdto.Orders)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// OrdersByUserId indicates an expected call of OrdersByUserId.
-func (mr *MockOrderRepositoryMockRecorder) OrdersByUserId(ctx, userId interface{}) *gomock.Call {
+// OrdersByUserID indicates an expected call of OrdersByUserID.
+func (mr *MockOrderRepositoryMockRecorder) OrdersByUserID(ctx, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OrdersByUserID", reflect.TypeOf((*MockOrderRepository)(nil).OrdersByUserID), ctx, userId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OrdersByUserID", reflect.TypeOf((*MockOrderRepository)(nil).OrdersByUserID), ctx, userID)
 }
 
 // OrdersWithoutAccrual mocks base method.
@@ -164,15 +164,15 @@ func (mr *MockOrderRepositoryMockRecorder) OrdersWithoutAccrual(ctx interface{})
 }
 
 // UpdateOrderByID mocks base method.
-func (m *MockOrderRepository) UpdateOrderByID(ctx context.Context, userId int64, cs systemdto.CalculationSystem) error {
+func (m *MockOrderRepository) UpdateOrderByID(ctx context.Context, userID int64, cs systemdto.CalculationSystem) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateOrderByID", ctx, userId, cs)
+	ret := m.ctrl.Call(m, "UpdateOrderByID", ctx, userID, cs)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// UpdateOrderById indicates an expected call of UpdateOrderById.
-func (mr *MockOrderRepositoryMockRecorder) UpdateOrderById(ctx, userId, cs interface{}) *gomock.Call {
+// UpdateOrderByID indicates an expected call of UpdateOrderByID.
+func (mr *MockOrderRepositoryMockRecorder) UpdateOrderByID(ctx, userID, cs interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateOrderByID", reflect.TypeOf((*MockOrderRepository)(nil).UpdateOrderByID), ctx, userId, cs)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateOrderByID", reflect.TypeOf((*MockOrderRepository)(nil).UpdateOrderByID), ctx, userID, cs)
 }
