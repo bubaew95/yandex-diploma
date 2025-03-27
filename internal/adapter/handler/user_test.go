@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"github.com/bubaew95/yandex-diploma/conf"
+	localMiddleware "github.com/bubaew95/yandex-diploma/internal/adapter/handler/middleware"
 	"github.com/bubaew95/yandex-diploma/internal/core/entity/userentity"
 	apperrors "github.com/bubaew95/yandex-diploma/internal/core/errors"
 	"github.com/bubaew95/yandex-diploma/internal/core/model/usermodel"
@@ -11,6 +12,7 @@ import (
 	"github.com/bubaew95/yandex-diploma/internal/utils"
 	"github.com/bubaew95/yandex-diploma/pkg/crypto"
 	"github.com/bubaew95/yandex-diploma/pkg/token"
+	"github.com/go-chi/chi/v5"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -27,8 +29,23 @@ func setupTestServer(t *testing.T) (*conf.Config, *mock.MockUserRepository, *htt
 	userService := service.NewUserService(userRepositoryMock, config)
 	userHandler := NewUserHandler(userService)
 
-	route.Post("/api/user/register", userHandler.SignUp)
-	route.Post("/api/user/login", userHandler.Login)
+	route.Route("/api/user", func(r chi.Router) {
+		r.Group(func(r chi.Router) {
+			r.Post("/register", userHandler.SignUp)
+			r.Post("/login", userHandler.Login)
+		})
+
+		r.Group(func(r chi.Router) {
+			r.Use(localMiddleware.AuthMiddleware(config))
+
+			r.Route("/balance", func(r chi.Router) {
+				r.Get("/", userHandler.Balance)
+				r.Post("/withdraw", userHandler.Withdraw)
+			})
+
+			r.Get("/withdrawals", userHandler.Withdrawals)
+		})
+	})
 
 	ts := httptest.NewServer(route)
 	t.Cleanup(ts.Close)
@@ -253,6 +270,131 @@ func TestUserHandlerLogin(t *testing.T) {
 
 			assert.Equal(t, tt.Want.StatusCode, resp.StatusCode)
 			assert.Equal(t, tt.Want.ContentType, resp.Header.Get("Content-Type"))
+		})
+	}
+}
+
+func TestBalanceHandler(t *testing.T) {
+	t.Parallel()
+
+	type want struct {
+		StatusCode  int
+		ContentType string
+		Result      usermodel.Balance
+	}
+
+	tests := []struct {
+		Name string
+		Want want
+	}{
+		{
+			Name: "Simple response balance",
+			Want: want{
+				StatusCode:  http.StatusOK,
+				ContentType: "application/json",
+				Result: usermodel.Balance{
+					Current:   100.5,
+					Withdrawn: 100.5,
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.Name, func(t *testing.T) {
+			config, userRepositoryMock, ts := setupTestServer(t)
+
+			userRepositoryMock.EXPECT().
+				GetUserBalance(gomock.Any(), gomock.Any()).
+				Return(tt.Want.Result, nil)
+
+			jwtToken := token.NewJwtToken(config.SecretKey)
+			newJwtToken, err := jwtToken.GenerateToken(userentity.User{
+				ID:    1,
+				Login: "test",
+			})
+			require.NoError(t, err)
+
+			req := utils.CreateRequest(t, ts, http.MethodGet, "/api/user/balance", "", newJwtToken)
+			resp := utils.SendUserRequest(t, req)
+			defer resp.Body.Close()
+
+			respBody, err := io.ReadAll(resp.Body)
+			require.NoError(t, err)
+
+			assert.Equal(t, tt.Want.StatusCode, resp.StatusCode)
+			assert.Equal(t, tt.Want.ContentType, resp.Header.Get("Content-Type"))
+
+			result, err := json.Marshal(tt.Want.Result)
+			require.NoError(t, err)
+
+			assert.JSONEq(t, string(result), string(respBody))
+		})
+	}
+}
+
+func TestWithdrawHandler(t *testing.T) {
+	t.Parallel()
+
+	type want struct {
+		StatusCode  int
+		ContentType string
+		Result      error
+	}
+
+	tests := []struct {
+		Name        string
+		Want        want
+		RequestData string
+		MockData    usermodel.Withdraw
+	}{
+		{
+			Name: "Simple response withdraw",
+			Want: want{
+				StatusCode:  http.StatusOK,
+				ContentType: "application/json",
+				Result:      nil,
+			},
+			RequestData: `{"order": "52383003218", "sum": 100.5}`,
+			MockData: usermodel.Withdraw{
+				UserID:      1,
+				OrderNumber: 52383003218,
+				Amount:      100.5,
+			},
+		},
+		{
+			Name: "Bad request",
+			Want: want{
+				StatusCode:  http.StatusBadRequest,
+				ContentType: "application/json",
+				Result:      nil,
+			},
+			RequestData: "",
+			MockData:    usermodel.Withdraw{},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.Name, func(t *testing.T) {
+			config, userRepositoryMock, ts := setupTestServer(t)
+
+			userRepositoryMock.EXPECT().
+				BalanceWithdraw(gomock.Any(), tt.MockData).
+				Return(tt.Want.Result)
+			jwtToken := token.NewJwtToken(config.SecretKey)
+			newJwtToken, err := jwtToken.GenerateToken(userentity.User{
+				ID:    1,
+				Login: "test",
+			})
+			require.NoError(t, err)
+
+			req := utils.CreateRequest(t, ts, http.MethodPost, "/api/user/balance/withdraw", tt.RequestData, newJwtToken)
+			resp := utils.SendUserRequest(t, req)
+			defer resp.Body.Close()
+
+			assert.Equal(t, tt.Want.StatusCode, resp.StatusCode)
+			assert.Equal(t, tt.Want.ContentType, resp.Header.Get("Content-Type"))
+			//assert.JSONEq(t, string(respBody), string(withdraw))
 		})
 	}
 }
