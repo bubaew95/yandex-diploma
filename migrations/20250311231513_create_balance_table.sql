@@ -1,0 +1,13 @@
+-- +goose Up
+CREATE TABLE user_balance (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER UNIQUE DEFAULT NULL,
+    balance DECIMAL(10, 2) DEFAULT 0,
+    withdrawn DECIMAL(10, 2) DEFAULT 0
+);
+ALTER TABLE user_balance ADD CONSTRAINT FK_BALANCE_USER_ID FOREIGN KEY (user_Id) REFERENCES users(id) ON DELETE SET NULL;
+CREATE INDEX IDX_BALANCE_USER_ID ON user_balance (user_Id);
+
+-- +goose Down
+ALTER TABLE user_balance DROP CONSTRAINT FK_BALANCE_USER_ID;
+DROP TABLE user_balance;
