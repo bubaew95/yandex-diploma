@@ -20,12 +20,6 @@ type DatabaseConfig struct {
 	MaxIdleConns            int
 }
 
-/*
-	адрес и порт запуска сервиса: переменная окружения ОС RUN_ADDRESS или флаг -a;
-	адрес подключения к базе данных: переменная окружения ОС DATABASE_URI или флаг -d;
-	адрес системы расчёта начислений: переменная окружения ОС ACCRUAL_SYSTEM_ADDRESS или флаг -r.
-*/
-
 func NewConfig() *Config {
 	runAddress := flag.String("a", "", "Адрес и порт запуска сервиса")
 	databaseURI := flag.String("d", "", "Адрес подключения к базе данных")

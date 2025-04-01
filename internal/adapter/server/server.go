@@ -11,8 +11,6 @@ import (
 	"time"
 )
 
-const defaultHost = "0.0.0.0"
-
 type HTTPServer interface {
 	Start()
 	Stop()

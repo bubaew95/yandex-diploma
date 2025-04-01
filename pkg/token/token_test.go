@@ -23,16 +23,17 @@ func TestJwtToken_GenerateToken(t *testing.T) {
 }
 
 func TestJwtToken_ParseToken(t *testing.T) {
-	token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDMxMjA5NjMsIklEIjoxLCJMb2dpbiI6InRlc3QifQ.ERt9RdRr_Kx7x8B6NI-tvj9u9kO_lBNPHEU18f2qtKo"
-
-	jwtToken := NewJwtToken("123test")
-	user, err := jwtToken.EncodeToken(token)
-	require.NoError(t, err)
-
 	userEntity := userentity.User{
 		ID:    1,
 		Login: "test",
 	}
+
+	jwtToken := NewJwtToken("123test")
+	token, err := jwtToken.GenerateToken(userEntity)
+	require.NoError(t, err)
+
+	user, err := jwtToken.EncodeToken(token)
+	require.NoError(t, err)
 
 	assert.Equal(t, userEntity, user)
 }
